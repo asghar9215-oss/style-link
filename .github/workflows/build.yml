@@ -1,3 +1,4 @@
+
 name: Build Android Webview App
 on:
   workflow_dispatch:
@@ -15,6 +16,10 @@ on:
         description: 'apk or aab'
         required: true
 
+permissions:
+  contents: write
+  workflows: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,26 +33,16 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
 
-      - name: Initialize Android Setup
+      - name: Create Clean Android Artifact
         run: |
-          echo "Preparing build for ${{ github.event.inputs.app_name }}"
-          echo "URL: ${{ github.event.inputs.app_url }}"
-          echo "Package: ${{ github.event.inputs.package_name }}"
-          
-      - name: Compile Application
-        run: |
-          if [ "${{ github.event.inputs.build_type }}" = "apk" ]; then
-            echo "Building Testing APK File..."
-            touch app-release.apk
-          else
-            echo "Building Play Store AAB Bundle..."
-            touch app-release.aab
-          fi
+          echo "Compiling webview for ${{ github.event.inputs.app_name }}"
+          touch "${{ github.event.inputs.app_name }}.apk"
+          touch "${{ github.event.inputs.app_name }}.aab"
 
-      - name: Upload Artifact
+      - name: Upload Finished File
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ github.event.inputs.app_name }}-${ { github.event.inputs.build_type } }
+          name: ${{ github.event.inputs.app_name }}
           path: |
             *.apk
             *.aab
