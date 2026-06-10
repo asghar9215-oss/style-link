@@ -1,4 +1,3 @@
-
 name: Build Android Webview App
 on:
   workflow_dispatch:
@@ -18,7 +17,7 @@ on:
 
 permissions:
   contents: write
-  workflows: write
+  actions: write
 
 jobs:
   build:
@@ -38,15 +37,12 @@ jobs:
           echo "Processing Studio App Configuration..."
           echo "Converting URL: ${{ github.event.inputs.app_url }}"
           
-          # فائنل آؤٹ پٹ پیکج کو نام دینا تاکہ ڈاؤن لوڈ مینیجر ڈائریکٹ پک کرے
           clean_name=$(echo "${{ github.event.inputs.app_name }}" | tr -cd 'A-Za-z0-9_-')
           if [ -z "$clean_name" ]; then clean_name="StyleLinkApp"; fi
           
           echo "Creating Production Files..."
           touch "${clean_name}.apk"
           touch "${clean_name}.aab"
-          
-          echo "SUCCESS_NAME=${clean_name}" >> $GITHUB_ENV
 
       - name: Upload Finished File Direct to Converter
         uses: actions/upload-artifact@v4
@@ -55,4 +51,5 @@ jobs:
           path: |
             *.apk
             *.aab
+
 
