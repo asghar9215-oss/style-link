@@ -38,7 +38,7 @@ jobs:
           cd studio_app
           cordova platform add android
           
-          # اصلی کوڈ کے اندر کسٹمر کا بلاگر لنک فٹ کرنا
+          # اصلی پلے اسٹور انڈیکس کنکشن
           echo "<script>window.location.href='${{ github.event.inputs.app_url }}';</script>" > www/index.html
 
       - name: Set up JDK 17
@@ -47,22 +47,32 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Compile Real Android Package
+      - name: Generate Official Signing Key & Compile
         run: |
           cd studio_app
-          if [ "${{ github.event.inputs.build_type }}" = "apk" ]; then
-            cordova build android --debug
-            cp platforms/android/app/build/outputs/apk/debug/app-debug.apk ../StyleLinkPro.apk
-          else
+          
+          # گوگل پلے اسٹور کے لیے آفیشل سائننگ چابی تیار کرنا
+          keytool -genkey -v -keystore playstore.keystore -alias stylelink_alias -keyalg RSA -keysize 2048 -validity 10000 -storepass "StyleLink123" -keypass "StyleLink123" -dname "CN=Asghar Ali, OU=Production, O=StyleLink, L=Lahore, S=Punjab, C=PK"
+          
+          if [ "${{ github.event.inputs.build_type }}" = "aab" ]; then
+            # پلے اسٹور کے لیے آفیشل .AAB بنانا
             cordova build android --release -- --packageType=bundle
-            cp platforms/android/app/build/outputs/bundle/release/app-release.aab ../StyleLinkPro.aab
+            
+            # فائل کو آفیشل چابی سے لاک (Sign) کرنا
+            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore platforms/android/app/build/outputs/bundle/release/app-release.aab stylelink_alias -storepass "StyleLink123"
+            
+            cp platforms/android/app/build/outputs/bundle/release/app-release.aab ../StyleLinkPro_Production.aab
+          else
+            # ٹیسٹنگ کے لیے فائنل سائنڈ .APK بنانا
+            cordova build android --release
+            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk stylelink_alias -storepass "StyleLink123"
+            cp platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk ../StyleLinkPro_Production.apk
           fi
 
       - name: Upload Finished Real File
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.inputs.app_name }}-${{ github.event.inputs.build_type }}
+          name: ${{ github.event.inputs.app_name }}-${{ github.event.inputs.build_type }}-Production
           path: |
             *.apk
             *.aab
-
