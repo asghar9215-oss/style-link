@@ -18,11 +18,11 @@ jobs:
       with:
         node-version: 18
 
-    - name: Setup Project and Capacitor
+    - name: Setup Project
       run: |
         npm init -y
         npm install @capacitor/core @capacitor/cli @capacitor/android
-        npx cap init "Style Link" "com.ceakle.stylelink" --web-dir=. --bundled-web-runtime=false
+        npx cap init "Style Link" "com.ceakle.stylelink" --web-dir=.
         npx cap add android
         npx cap sync android
 
@@ -50,4 +50,3 @@ jobs:
       with:
         name: Signed-AAB-File
         path: android/app/build/outputs/bundle/release/app-release.aab
-
