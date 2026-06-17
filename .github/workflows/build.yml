@@ -46,9 +46,10 @@ jobs:
 
       - name: Build Android App (AAB)
         run: |
+          # گریڈل کنفیگریشن فائل میں ورژن کا نام براہ راست 8.7 پر تبدیل کرنا (تاکہ پرانا ورژن رن ہی نہ ہو)
+          sed -i 's/gradle-8.2.1-all.zip/gradle-8.7-all.zip/g' android/gradle/wrapper/gradle-wrapper.properties
+          
           cd android
-          # گریڈل ورژن کو خودکار 8.7 پر اپ گریڈ کرنا (تاکہ جاوا 21 کا ایرر حل ہو سکے)
-          ./gradlew wrapper --gradle-version 8.7
           chmod +x gradlew
           ./gradlew bundleRelease --no-daemon --stacktrace
 
