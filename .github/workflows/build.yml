@@ -59,14 +59,12 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd studio_app
-          echo "🆕 لائف ٹائم سیکیورٹی چابی بنائی جا رہی ہے..."
           keytool -genkey -v -keystore playstore.keystore -alias stylelink_alias -keyalg RSA -keysize 2048 -validity 10000 -storepass "StyleLink123" -keypass "StyleLink123" -dname "CN=Asghar Ali, OU=Production, O=StyleLink, L=Lahore, S=Punjab, C=PK"
           cp playstore.keystore ../playstore.keystore
           
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-          
           git add ../playstore.keystore
           git commit -m "🔐 Fresh Play Store Keystore Locked Officially" || true
           git push origin main --force || true
@@ -75,20 +73,22 @@ jobs:
         run: |
           cd studio_app
           cordova build android --release -- --packageType=bundle
-          find platforms/android/ -name "*.aab" -exec cp {} ../StyleLinkPro_Production.aab \;
+          # پاتھ کو بالکل سیدھا فکس کر دیا گیا ہے
+          cp platforms/android/app/build/outputs/bundle/release/app-release.aab ../StyleLinkPro_Production.aab
           jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../StyleLinkPro_Production.aab stylelink_alias -storepass "StyleLink123"
 
       - name: Build and Sign APK (Mobile Testing)
         run: |
           cd studio_app
           cordova build android --release
-          find platforms/android/ -name "*release-unsigned.apk" -exec cp {} ../StyleLinkPro_Production.apk \;
+          # پاتھ کو بالکل سیدھا فکس کر دیا گیا ہے
+          cp platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk ../StyleLinkPro_Production.apk
           jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../StyleLinkPro_Production.apk stylelink_alias -storepass "StyleLink123"
 
       - name: Upload Finished Real Files
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.inputs.app_name }}-Files
+          name: Finished-Android-Files
           path: |
             StyleLinkPro_Production.apk
             StyleLinkPro_Production.aab
