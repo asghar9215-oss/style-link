@@ -27,6 +27,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }} # 🔑 سیکیورٹی ٹوکن فکس
 
       - name: Set up NodeJS
         uses: actions/setup-node@v4
@@ -53,24 +54,27 @@ jobs:
           cordova platform add android --save
           echo "<script>window.location.href='${{ github.event.inputs.app_url }}';</script>" > www/index.html
 
-      # 🔐 مستقل سیکیورٹی چابی کو چیک اور لاک کرنے کا خودکار نظام
       - name: Manage Permanent Keystore
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd studio_app
           if [ -f "../playstore.keystore" ]; then
-            echo "🔒 پرانی محفوظ شدہ چابی مل گئی ہے، اسی کو استعمال کیا جا رہا ہے..."
+            echo "🔒 پرانی محفوظ شدہ چابی مل گئی ہے..."
             cp ../playstore.keystore ./playstore.keystore
           else
-            echo "🆕 پہلی بار رن ہو رہا ہے، نئی مستقل چابی بنائی جا رہی ہے..."
-            keytool -genkey -v -keystore playstore.keystore -alias stylelink_alias -keyalg RSA -keysize 2048 -validity 10000 -storepass "StyleLink123" -keypass "StyleLink123" -dname "CN=Asghar Ali, OU=Production, O=StyleLink, L=Lahore, S=Punjab, C=PK"
+            echo "🆕 نئی مستقل چابی بنائی جا رہی ہے..."
+            keytool -genkey -v -keystore playstore.keystore -alias electric_alias -keyalg RSA -keysize 2048 -validity 10000 -storepass "Electric123" -keypass "Electric123" -dname "CN=Asghar Ali, OU=Production, O=ElectricMaster, L=Lahore, S=Punjab, C=PK"
             cp playstore.keystore ../playstore.keystore
             
-            # چابی کو مستقل طور پر آپ کے گٹ ہب اکاؤنٹ پر سیو کرنا
-            git config --global user.name "GitHub Actions"
-            git config --global user.email "actions@github.com"
+            # گٹ ہب رائٹ پرمیشن بائی پاس کنفیگریشن
+            git config --global user.name "github-actions[bot]"
+            git config --global user.email "github-actions[bot]@users.noreply.github.com"
+            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+            
             git add ../playstore.keystore
             git commit -m "🔐 Permanent Play Store Keystore Locked" || true
-            git push || true
+            git push origin main || true
           fi
 
       - name: Compile Real Android Package
@@ -78,12 +82,12 @@ jobs:
           cd studio_app
           if [ "${{ github.event.inputs.build_type }}" = "aab" ]; then
             cordova build android --release -- --packageType=bundle
-            find platforms/android/ -name "*.aab" -exec cp {} ../StyleLinkPro_Production.aab \;
-            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../StyleLinkPro_Production.aab stylelink_alias -storepass "StyleLink123"
+            find platforms/android/ -name "*.aab" -exec cp {} ../ElectricMaster_Production.aab \;
+            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../ElectricMaster_Production.aab electric_alias -storepass "Electric123"
           else
             cordova build android --release
-            find platforms/android/ -name "*.apk" -exec cp {} ../StyleLinkPro_Production.apk \;
-            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../StyleLinkPro_Production.apk stylelink_alias -storepass "StyleLink123"
+            find platforms/android/ -name "*.apk" -exec cp {} ../ElectricMaster_Production.apk \;
+            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../ElectricMaster_Production.apk electric_alias -storepass "Electric123"
           fi
 
       - name: Upload Finished Real File
@@ -91,5 +95,5 @@ jobs:
         with:
           name: ${{ github.event.inputs.app_name }}
           path: |
-            StyleLinkPro_Production.apk
-            StyleLinkPro_Production.aab
+            ElectricMaster_Production.apk
+            ElectricMaster_Production.aab
