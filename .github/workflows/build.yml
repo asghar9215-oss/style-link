@@ -27,7 +27,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }} # 🔑 سیکیورٹی ٹوکن فکس
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up NodeJS
         uses: actions/setup-node@v4
@@ -60,14 +60,13 @@ jobs:
         run: |
           cd studio_app
           if [ -f "../playstore.keystore" ]; then
-            echo "🔒 پرانی محفوظ شدہ چابی مل گئی ہے..."
+            echo "🔒 آپ کی پرانی لائف ٹائم چابی مل گئی ہے، اسی کو استعمال کیا جا رہا ہے..."
             cp ../playstore.keystore ./playstore.keystore
           else
-            echo "🆕 نئی مستقل چابی بنائی جا رہی ہے..."
-            keytool -genkey -v -keystore playstore.keystore -alias electric_alias -keyalg RSA -keysize 2048 -validity 10000 -storepass "Electric123" -keypass "Electric123" -dname "CN=Asghar Ali, OU=Production, O=ElectricMaster, L=Lahore, S=Punjab, C=PK"
+            echo "🆕 چابی موجود نہیں تھی، نئی بنائی جا رہی ہے..."
+            keytool -genkey -v -keystore playstore.keystore -alias stylelink_alias -keyalg RSA -keysize 2048 -validity 10000 -storepass "StyleLink123" -keypass "StyleLink123" -dname "CN=Asghar Ali, OU=Production, O=StyleLink, L=Lahore, S=Punjab, C=PK"
             cp playstore.keystore ../playstore.keystore
             
-            # گٹ ہب رائٹ پرمیشن بائی پاس کنفیگریشن
             git config --global user.name "github-actions[bot]"
             git config --global user.email "github-actions[bot]@users.noreply.github.com"
             git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
@@ -82,12 +81,12 @@ jobs:
           cd studio_app
           if [ "${{ github.event.inputs.build_type }}" = "aab" ]; then
             cordova build android --release -- --packageType=bundle
-            find platforms/android/ -name "*.aab" -exec cp {} ../ElectricMaster_Production.aab \;
-            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../ElectricMaster_Production.aab electric_alias -storepass "Electric123"
+            find platforms/android/ -name "*.aab" -exec cp {} ../StyleLinkPro_Production.aab \;
+            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../StyleLinkPro_Production.aab stylelink_alias -storepass "StyleLink123"
           else
             cordova build android --release
-            find platforms/android/ -name "*.apk" -exec cp {} ../ElectricMaster_Production.apk \;
-            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../ElectricMaster_Production.apk electric_alias -storepass "Electric123"
+            find platforms/android/ -name "*.apk" -exec cp {} ../StyleLinkPro_Production.apk \;
+            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../StyleLinkPro_Production.apk stylelink_alias -storepass "StyleLink123"
           fi
 
       - name: Upload Finished Real File
@@ -95,5 +94,5 @@ jobs:
         with:
           name: ${{ github.event.inputs.app_name }}
           path: |
-            ElectricMaster_Production.apk
-            ElectricMaster_Production.aab
+            StyleLinkPro_Production.apk
+            StyleLinkPro_Production.aab
