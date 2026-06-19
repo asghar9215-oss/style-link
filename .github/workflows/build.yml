@@ -12,8 +12,8 @@ on:
         description: 'Package Name'
         required: true
       build_type:
-        description: 'apk or aab'
-        required: true
+        description: 'apk or aab (ignored, generates both)'
+        required: false
 
 permissions:
   contents: write
@@ -54,45 +54,41 @@ jobs:
           cordova platform add android --save
           echo "<script>window.location.href='${{ github.event.inputs.app_url }}';</script>" > www/index.html
 
-      - name: Manage Permanent Keystore
+      - name: Generate Fresh Permanent Keystore
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           cd studio_app
-          if [ -f "../playstore.keystore" ]; then
-            echo "🔒 آپ کی پرانی لائف ٹائم چابی مل گئی ہے، اسی کو استعمال کیا جا رہا ہے..."
-            cp ../playstore.keystore ./playstore.keystore
-          else
-            echo "🆕 چابی موجود نہیں تھی، نئی بنائی جا رہی ہے..."
-            keytool -genkey -v -keystore playstore.keystore -alias stylelink_alias -keyalg RSA -keysize 2048 -validity 10000 -storepass "StyleLink123" -keypass "StyleLink123" -dname "CN=Asghar Ali, OU=Production, O=StyleLink, L=Lahore, S=Punjab, C=PK"
-            cp playstore.keystore ../playstore.keystore
-            
-            git config --global user.name "github-actions[bot]"
-            git config --global user.email "github-actions[bot]@users.noreply.github.com"
-            git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-            
-            git add ../playstore.keystore
-            git commit -m "🔐 Permanent Play Store Keystore Locked" || true
-            git push origin main || true
-          fi
+          echo "🆕 لائف ٹائم سیکیورٹی چابی بنائی جا رہی ہے..."
+          keytool -genkey -v -keystore playstore.keystore -alias stylelink_alias -keyalg RSA -keysize 2048 -validity 10000 -storepass "StyleLink123" -keypass "StyleLink123" -dname "CN=Asghar Ali, OU=Production, O=StyleLink, L=Lahore, S=Punjab, C=PK"
+          cp playstore.keystore ../playstore.keystore
+          
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          
+          git add ../playstore.keystore
+          git commit -m "🔐 Fresh Play Store Keystore Locked Officially" || true
+          git push origin main --force || true
 
-      - name: Compile Real Android Package
+      - name: Build and Sign AAB (Play Store)
         run: |
           cd studio_app
-          if [ "${{ github.event.inputs.build_type }}" = "aab" ]; then
-            cordova build android --release -- --packageType=bundle
-            find platforms/android/ -name "*.aab" -exec cp {} ../StyleLinkPro_Production.aab \;
-            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../StyleLinkPro_Production.aab stylelink_alias -storepass "StyleLink123"
-          else
-            cordova build android --release
-            find platforms/android/ -name "*.apk" -exec cp {} ../StyleLinkPro_Production.apk \;
-            jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../StyleLinkPro_Production.apk stylelink_alias -storepass "StyleLink123"
-          fi
+          cordova build android --release -- --packageType=bundle
+          find platforms/android/ -name "*.aab" -exec cp {} ../StyleLinkPro_Production.aab \;
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../StyleLinkPro_Production.aab stylelink_alias -storepass "StyleLink123"
 
-      - name: Upload Finished Real File
+      - name: Build and Sign APK (Mobile Testing)
+        run: |
+          cd studio_app
+          cordova build android --release
+          find platforms/android/ -name "*release-unsigned.apk" -exec cp {} ../StyleLinkPro_Production.apk \;
+          jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../StyleLinkPro_Production.apk stylelink_alias -storepass "StyleLink123"
+
+      - name: Upload Finished Real Files
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ github.event.inputs.app_name }}
+          name: ${{ github.event.inputs.app_name }}-Files
           path: |
             StyleLinkPro_Production.apk
             StyleLinkPro_Production.aab
