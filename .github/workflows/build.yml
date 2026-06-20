@@ -51,10 +51,17 @@ jobs:
           cordova platform add android --save
           echo "<script>window.location.href='${{ github.event.inputs.app_url }}';</script>" > www/index.html
           
-          # مستقل لائف ٹائم چابی بنانا
-          keytool -genkey -v -keystore playstore.keystore -alias stylelink_alias -keyalg RSA -keysize 2048 -validity 10000 -storepass "StyleLink123" -keypass "StyleLink123" -dname "CN=Asghar Ali, OU=Production, O=StyleLink, L=Lahore, S=Punjab, C=PK"
+          # 🔐 پرانی چابی کو واپس پروجیکٹ میں لانا (اگر پہلے سے موجود ہو)
+          if [ -f "../playstore.keystore" ]; then
+            cp ../playstore.keystore ./playstore.keystore
+            echo "✅ پرانی اور اصل چابی کامیابی سے لوڈ ہو گئی ہے!"
+          else
+            # اگر بالکل پہلی بار چل رہا ہو تو ہی نئی چابی بنے گی
+            keytool -genkey -v -keystore playstore.keystore -alias stylelink_alias -keyalg RSA -keysize 2048 -validity 10000 -storepass "StyleLink123" -keypass "StyleLink123" -dname "CN=Asghar Ali, OU=Production, O=StyleLink, L=Lahore, S=Punjab, C=PK"
+            echo "⚠️ نئی چابی بنائی گئی ہے (صرف پہلی بار کے لیے)۔"
+          fi
 
-      # 📦 1۔ پلے اسٹور کے لیے فائنل .AAB بنانا
+      # 📦 1۔ پلے اسٹور کے لیے فائنل .AAB بنانا (اصل چابی کے ساتھ)
       - name: Generate Official AAB
         run: |
           cd studio_app
@@ -62,39 +69,39 @@ jobs:
           cp platforms/android/app/build/outputs/bundle/release/app-release.aab ../StyleLinkPro_PlayStore.aab
           jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA256 -keystore playstore.keystore ../StyleLinkPro_PlayStore.aab stylelink_alias -storepass "StyleLink123"
 
-      # 📱 2۔ موبائل کے لیے انسٹالر .APK بنانا (ZipAlign + V2 Signature کے ساتھ)
-      - name: Generate Testing APK (Full Mobile Support)
+      # 📱 2۔ موبائل کے لیے انسٹالر .APK بنانا
+      - name: Generate Testing APK
         run: |
           cd studio_app
           cordova build android --release -- --packageType=apk
-          
-          # اینڈرائیڈ بلڈ ٹولز کا پاتھ سیٹ کرنا
           BUILD_TOOLS_DIR=$(ls -d ${ANDROID_HOME}/build-tools/* | tail -1)
-          
-          # پیکیج کو الائن (ZipAlign) کرنا تاکہ موبائل قبول کرے
           $BUILD_TOOLS_DIR/zipalign -v 4 platforms/android/app/build/outputs/apk/release/app-release-unsigned.apk ../aligned.apk
-          
-          # موبائل کے لیے اینڈرائیڈ آفیشل V2 سائننگ (apksigner) کرنا
           $BUILD_TOOLS_DIR/apksigner sign --ks playstore.keystore --ks-key-alias stylelink_alias --ks-pass pass:StyleLink123 --key-pass pass:StyleLink123 --out ../StyleLinkPro_Testing.apk ../aligned.apk
 
-      # 🔐 چابی محفوظ کرنا
-      - name: Save Keystore
+      # 🔐 چابی کو ہمیشہ کے لیے گٹ ہب پر لاک کرنا تاکہ اگلی بار تبدیل نہ ہو
+      - name: Save Keystore Permanently
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          cp studio_app/playstore.keystore ./playstore.keystore
+          if [ ! -f "./playstore.keystore" ] && [ -f "studio_app/playstore.keystore" ]; then
+            cp studio_app/playstore.keystore ./playstore.keystore
+          fi
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
           git add playstore.keystore
-          git commit -m "🔐 Keystore Saved with Full Signatures" || true
+          git commit -m "🔐 Keystore Saved Permanently - Never Changes" || true
           git push origin main --force || true
 
-      # 📥 دونوں فائلیں اپلوڈ کرنا
-      - name: Upload Finished Files
+      # 📥 دونوں فائلیں الگ الگ ڈاؤن لوڈ کے لیے اپلوڈ کرنا (بغیر زپ فائل کے)
+      - name: Upload Official AAB File
         uses: actions/upload-artifact@v4
         with:
-          name: StyleLink-Pro-Package-Files
-          path: |
-            StyleLinkPro_PlayStore.aab
-            StyleLinkPro_Testing.apk
+          name: StyleLinkPro_PlayStore.aab
+          path: StyleLinkPro_PlayStore.aab
+
+      - name: Upload Testing APK File
+        uses: actions/upload-artifact@v4
+        with:
+          name: StyleLinkPro_Testing.apk
+          path: StyleLinkPro_Testing.apk
