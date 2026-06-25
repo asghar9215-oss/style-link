@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="ur" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StyleLink - Final A to Z Locked Version</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #dbb04a;
+            --bg-color: #000000;
+            --card-bg: #222222;
+            --text-color: #ffffff;
+            --gray-btn: #444444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            top: 0px !important;
+            position: static !important;
+        }
+
+        /* Mobile Container Mockup */
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            height: 92vh;
+            background-color: #111;
+            border: 2px solid var(--primary-color);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Top Header Component */
+        .app-header {
+            background-color: #050505;
+            padding: 10px 15px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        .logo-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 5px;
+            position: relative;
+            width: 100%;
+            min-height: 75px;
+            justify-content: center;
+        }
+        .logo-circle {
+            width: 50px;
+            height: 50px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 10px var(--primary-color);
+        }
+        .logo-circle i {
+            color: #000;
+            font-size: 24px;
+        }
+        .app-title {
+            font-size: 22px;
+            color: var(--primary-color);
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        /* Symmetrical Absolute Header Icons style */
+        .barber-noti-bell {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: none;
+        }
+        .barber-complaint-btn {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: var(--primary-color);
+            cursor: pointer;
+            display: none;
+        }
+
+        /* Language Buttons Style */
+        .lang-selector {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .lang-btn {
+            background: var(--card-bg);
+            color: #fff;
+            border: 1px solid var(--primary-color);
+            padding: 5px 12px;
+            font-size: 13px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .lang-btn.active {
+            background: var(--primary-color);
+            color: #000;
+        }
+
+        /* Google Translate Integration Styling */
+        #google_translate_element {
+            position: absolute;
+            top: -9999px;
+            left: -9999px;
+            visibility: hidden;
+        }
+        .skiptranslate, iframe.goog-te-banner-frame {
+            display: none !important;
+        }
+        .goog-te-balloon-frame {
+            display: none !important;
+        }
+
+        /* Screen Wrapper */
+        .app-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+            padding-bottom: 70px;
+        }
+
+        .screen {
+            display: none;
+        }
+        .screen.active {
+            display: block;
+        }
+
+        /* Form Inputs & Buttons */
+        .input-group {
+            margin-bottom: 15px;
+        }
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--card-bg);
+            border: 1px solid #444;
+            color: #fff;
+            border-radius: 8px;
+            outline: none;
+            text-align: right;
+        }
+        .input-group input:focus {
+            border-color: var(--primary-color);
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-gold {
+            background-color: var(--primary-color);
+            color: #000;
+        }
+        .btn-gray {
+            background-color: var(--gray-btn);
+            color: #fff;
+        }
+
+        /* Mode Selector Toggle Tab */
+        .auth-mode-selector {
+            display: flex;
+            background-color: #1a1a1a;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #333;
+            overflow: hidden;
+        }
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #aaa;
+            transition: all 0.2s;
+        }
+        .auth-tab.active {
+            background-color: var(--primary-color);
+            color: #000;
+        }
+
+        /* Gallery Preview Styling */
+        .image-preview-container {
+            width: 100%;
+            height: 120px;
+            background: #1a1a1a;
+            border: 1px dashed var(--primary-color);
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
+        .image-preview-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        /* Ad Strip / Card */
+        .ad-strip {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-left: 4px solid var(--primary-color);
+            cursor: pointer;
+            position: relative;
+        }
+        .ad-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+        }
+        .ad-img {
+            width: 60px;
+            height: 60px;
+            border-radius: 8px;
+            object-fit: cover;
+            border: 1px solid var(--primary-color);
+        }
+        .rating {
+            color: #ffcc00;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+        .expiry-badge {
+            font-size: 10px;
+            color: #ff3333;
+            background: rgba(255, 51, 51, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 51, 51, 0.3);
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        /* Bottom Navigation */
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 60px;
+            background: #050505;
+            border-top: 2px solid var(--primary-color);
+            display: none;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 100;
+        }
+        .nav-item {
+            color: #aaa;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            cursor: pointer;
+            flex: 1;
+        }
+        .nav-item i {
+            font-size: 18px;
+            margin-bottom: 2px;
+        }
+        .nav-item.active {
+            color: var(--primary-color);
+        }
+
+        /* Utilities */
+        .back-arrow {
+            font-size: 20px;
+            color: var(--primary-color);
+            cursor: pointer;
+            margin-bottom: 15px;
+            display: inline-block;
+        }
+        .checkbox-container {
+            background: #1a1a1a;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Alarm Notification Overlay */
+        .alarm-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            text-align: center;
+            padding: 20px;
+        }
+        .alarm-icon {
+            font-size: 60px;
+            color: red;
+            animation: ring 0.5s infinite alternate;
+        }
+        @keyframes ring {
+            0% { transform: rotate(-10deg); }
+            100% { transform: rotate(10deg); }
+        }
+
+        /* Privacy Policy Overlay */
+        .privacy-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+        }
+        .privacy-box {
+            background: #111;
+            border: 1px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 20px;
+            max-height: 75%;
+            overflow-y: auto;
+            text-align: right;
+            font-size: 13px;
+            line-height: 1.6;
+            color: #eee;
+        }
+        .privacy-box h4 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            font-size: 16px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+        .privacy-box p {
+            margin-bottom: 12px;
+        }
+
+        /* Blinking Billing Button styling */
+        @keyframes blink-billing {
+            0% { background-color: var(--primary-color); color: #000; transform: scale(1); box-shadow: 0 0 5px var(--primary-color); }
+            50% { background-color: #ff3333; color: #fff; transform: scale(1.02); box-shadow: 0 0 15px #ff3333; }
+            100% { background-color: var(--primary-color); color: #000; transform: scale(1); box-shadow: 0 0 5px var(--primary-color); }
+        }
+        .billing-btn-blink {
+            animation: blink-billing 1.2s infinite;
+            padding: 14px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        /* Pulse Animation for verification loader */
+        @keyframes pulse-icon {
+            0% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    
+    <header class="app-header">
+        <div class="header-top">
+            <span id="header-date">6/8/2026</span>
+            <span id="header-role-badge" style="color: var(--primary-color); font-weight: bold; font-size: 11px; background: rgba(219, 176, 74, 0.15); padding: 2px 10px; border-radius: 4px; border: 1px solid rgba(219, 176, 74, 0.3);">StyleLink</span>
+            <span id="header-time">12:40 AM</span>
+        </div>
+        <div class="logo-area">
+            <i class="fa-solid fa-headset barber-complaint-btn" id="header-comp-btn" onclick="navigate('complaint')"></i>
+            <i class="fa-solid fa-bell barber-noti-bell" id="header-noti-btn" onclick="navigate('my-bookings')"></i>
+            
+            <div class="logo-circle">
+                <i class="fa-solid fa-scissors"></i>
+            </div>
+            <h1 class="app-title" id="app-title-text">StyleLink</h1>
+        </div>
+        
+        <div class="lang-selector">
+            <button class="lang-btn" onclick="triggerGoogleTranslate('en')">English</button>
+            <button class="lang-btn" onclick="triggerGoogleTranslate('ur')">اردو</button>
+            <button class="lang-btn" onclick="triggerGoogleTranslate('ar')">العربية</button>
+            <button class="lang-btn" onclick="triggerGoogleTranslate('hi')">हिन्दी</button>
+        </div>
+    </header>
+
+    <div id="google_translate_element"></div>
+
+    <div class="alarm-overlay" id="alarmScreen">
+        <i class="fa-solid fa-bell alarm-icon"></i>
+        <h2 style="margin-top:20px; color: var(--primary-color);" id="alarmTitle">نئی بکنگ موصول ہوئی ہے!</h2>
+        <p style="margin: 15px 0;" id="alarmBody">براہ کرم بکنگ کی تصدیق کریں۔</p>
+        <button class="btn btn-gold" onclick="stopAlarm()">بکنگ چیک کریں</button>
+    </div>
+
+    <!-- Privacy Policy Overlay Card Component -->
+    <div class="privacy-overlay" id="privacyOverlay">
+        <div class="privacy-box">
+            <h4>رازداری کی پالیسی (Privacy Policy)</h4>
+            <p><strong>تعارف:</strong> ایپ 'StyleLink' آپ کی ذاتی معلومات اور ڈیٹا کے تحفظ کو یقینی بنانے کے لیے پرعزم ہے۔ یہ پالیسی بیان کرتی ہے کہ ہم آپ کا ڈیٹا کس طرح حاصل، استعمال اور محفوظ کرتے ہیں۔</p>
+            
+            <p><strong>1. معلومات کا حصول:</strong> جب آپ ایک دکاندار کے طور پر رجسٹریشن یا اشتہار لگاتے ہیں، تو ہم آپ کا فون نمبر، دکان کا نام، دکاندار کا نام، دکان کی تصویر اور مقام (لوکیشن کوآرڈینیٹس) جمع کرتے ہیں۔ کسٹمر کے لیے بکنگ کا وقت، تاریخ اور سروس کا انتخاب محفوظ کیا جاتا ہے۔</p>
+            
+            <p><strong>2. لوکیشن اور نقشہ کا استعمال:</strong> دکاندار کی لوکیشن صرف کسٹمر کو دکان تلاش کرنے اور گوگل میپ کے ذریعے رہنمائی فراہم کرنے کے لیے استعمال کی جاتی ہے۔</p>
+            
+            <p><strong>3. تصویر کی اپلوڈنگ:</strong> دکان کی تصویر دکاندار کی اپنی مرضی سے پبلشنگ کے عمل کے دوران حاصل کی جاتی ہے تاکہ کسٹمرز کو بہتر تجربہ فراہم کیا جا سکے۔</p>
+            
+            <p><strong>4. DATA SECURITY اور اکاؤنٹ کی منسوخی:</strong> ہم ڈیٹا کے تحفظ کے لیے فائر بیس ڈیٹا بیس سروسز استعمال کرتے ہیں۔ آپ کسی بھی وقت اپنے پروفائل پیج پر جا کر 'اکاؤنٹ مکمل ڈیلیٹ کریں' کے آپشن سے اپنا اکاؤنٹ اور متعلقہ ڈیٹا ہمیشہ کے لیے حذف کر سکتے ہیں۔</p>
+            
+            <p><strong>رابطہ کریں:</strong> اگر آپ کے پاس اس پالیسی کے بارے میں کوئی سوالات ہیں تو کمپلین سینٹر کے ذریعے ہم سے رابطہ کریں۔</p>
+        </div>
+        <button class="btn btn-gold" onclick="togglePrivacy(false)" style="margin-top:15px; max-width: 90%;">بند کریں</button>
+    </div>
+
+    <div class="app-content">
+
+        <!-- Login / Registration Form Screen with Tab Selector -->
+        <div id="screen-login" class="screen active">
+            <div class="auth-mode-selector">
+                <div class="auth-tab active" id="tab-login" onclick="switchAuthMode('login')">لاگ ان کریں</div>
+                <div class="auth-tab" id="tab-register" onclick="switchAuthMode('register')">نیا اکاؤنٹ بنائیں</div>
+            </div>
+
+            <!-- New Fields shown only in Signup mode -->
+            <div id="register-fields-container" style="display: none;">
+                <div class="input-group">
+                    <input type="text" id="reg-name" placeholder="پورا نام درج کریں">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="reg-phone" placeholder="موبائل نمبر (03xxxxxxxx)">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <input type="email" id="login-email" placeholder="ای ای میل ایڈریس">
+            </div>
+            <div class="input-group">
+                <input type="password" id="login-pass" placeholder="پاس ورڈ درج کریں">
+            </div>
+            
+            <button class="btn btn-gold" onclick="window.loginAs('customer')" id="lbl-cust-login">کسٹمر اکاؤنٹ</button>
+            <button class="btn btn-gray" onclick="window.loginAs('barber')" id="lbl-barber-login">دکاندار اکاؤنٹ</button>
+        </div>
+
+        <div id="screen-home" class="screen">
+            <div id="ads-list-container">
+                <p style="text-align:center; color:#666; margin-top:20px;">کوئی اشتہار دستیاب نہیں ہے</p>
+            </div>
+        </div>
+
+        <div id="screen-create-ad" class="screen">
+            <i class="fa-solid fa-arrow-right back-arrow" onclick="navigate('home')"></i>
+            
+            <!-- Blinking Billing Button -->
+            <div id="billing-indicator" class="billing-btn-blink" onclick="navigate('payment')">
+                <i class="fa-solid fa-wallet"></i> اشتہار کی حد ختم! 5 اشتہارات کے لیے یہاں کلک کریں۔
+            </div>
+
+            <div id="ad-create-form-wrapper">
+                <h3 style="margin-bottom:15px; color:var(--primary-color);" id="lbl-add-head">نیا اشتہار لگائیں</h3>
+                
+                <div class="image-preview-container" onclick="document.getElementById('gallery-input').click()">
+                    <span id="preview-placeholder" style="color:#aaa; font-size:13px;"><i class="fa-solid fa-image" style="font-size:24px; color:var(--primary-color); display:block; margin-bottom:5px;"></i>دکان کی تصویر منتخب کریں</span>
+                    <img id="ad-image-preview" src="#" alt="Preview">
+                </div>
+                <input type="file" id="gallery-input" accept="image/*" style="display:none;" onchange="previewSelectedImage(this)">
+
+                <div class="input-group">
+                    <input type="text" id="ad-shop-name" placeholder="دکان کا نام">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="ad-barber-name" placeholder="دکاندار کا نام" readonly style="background:#1a1a1a; color:#888;">
+                </div>
+                <div class="input-group">
+                    <input type="text" id="ad-phone" placeholder="موبائل نمبر" readonly style="background:#1a1a1a; color:#888;">
+                </div>
+                <div class="input-group">
+                    <button class="btn btn-gray" onclick="getLiveLocation('ad-location')" style="font-size:12px; padding:8px;">
+                        <i class="fa-solid fa-location-dot"></i> موجودہ لوکیشن حاصل کریں
+                    </button>
+                    <input type="text" id="ad-location" placeholder="لوکیشن کوآرڈینیٹس" readonly>
+                </div>
+
+                <p style="margin-bottom:10px; font-weight:bold;" id="lbl-services">خدمات اور فیس منتخب کریں:</p>
+                <div class="checkbox-container">
+                    <span>کٹنگ (Haircut)</span>
+                    <input type="number" id="price-cutting" placeholder="رقم" style="width:80px; padding:4px; background:#000; color:#fff; border:1px solid var(--primary-color);">
+                </div>
+                <div class="checkbox-container">
+                    <span>شیو (Shave)</span>
+                    <input type="number" id="price-shave" placeholder="رقم" style="width:80px; padding:4px; background:#000; color:#fff; border:1px solid var(--primary-color);">
+                </div>
+                <div class="checkbox-container">
+                    <span>فیشل (Facial)</span>
+                    <input type="number" id="price-facial" placeholder="رقم" style="width:80px; padding:4px; background:#000; color:#fff; border:1px solid var(--primary-color);">
+                </div>
+
+                <button class="btn btn-gold" onclick="publishAd()" style="margin-top:15px;" id="lbl-btn-pub">ایڈ پبلش کریں</button>
+            </div>
+        </div>
+
+        <!-- Add Payment Screen -->
+        <div id="screen-payment" class="screen">
+            <i class="fa-solid fa-arrow-right back-arrow" onclick="navigate('create-ad')"></i>
+            <h3 style="margin-bottom:15px; color:var(--primary-color);">پیمنٹ ویریفیکیشن پیج</h3>
+            
+            <div style="background:#222; border:1px solid var(--primary-color); border-radius:10px; padding:15px; margin-bottom:15px; font-size:12px; line-height:1.8;">
+                <p style="color:var(--primary-color); font-weight:bold; margin-bottom:5px; border-bottom:1px solid #444; padding-bottom:5px;">اکاؤنٹ کی معلومات برائے پیمنٹ ٹرانسفر:</p>
+                <p><strong>نام:</strong> ASGHAR ALI</p>
+                <p><strong>اکاؤنٹ نمبر:</strong> 02730106417132</p>
+                <p><strong>IBAN:</strong> PK46MEZN0002730106417132</p>
+                <p><strong>برانچ:</strong> KAHNA NAU BR-LAHORE</p>
+                <p style="color:#ffcc00; margin-top:5px; font-weight:bold;">نوٹ: کم از کم 10 روپے کی فکسڈ پیمنٹ لازمی ہے!</p>
+            </div>
+
+            <!-- Auto Filled Read Only Fields -->
+            <div class="input-group">
+                <input type="text" id="pay-name" readonly style="background:#1a1a1a; color:#888;" placeholder="نام (خودکار)">
+            </div>
+            <div class="input-group">
+                <input type="text" id="pay-phone" readonly style="background:#1a1a1a; color:#888;" placeholder="موبائل نمبر (خودکار)">
+            </div>
+            <div class="input-group">
+                <input type="email" id="pay-email" readonly style="background:#1a1a1a; color:#888;" placeholder="ای میل (خودکار)">
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="pay-id" placeholder="پے آئی ڈی / ٹرانزیکشن ID (مینول درج کریں)">
+            </div>
+            <div class="input-group">
+                <input type="number" id="pay-amount" value="10" readonly style="background:#333; color:#aaa; cursor:not-allowed;">
+            </div>
+
+            <div class="image-preview-container" onclick="document.getElementById('pay-screenshot-input').click()" style="height:100px;">
+                <span id="screenshot-placeholder" style="color:#aaa; font-size:12px;"><i class="fa-solid fa-file-invoice-dollar" style="font-size:24px; color:var(--primary-color); display:block; margin-bottom:5px;"></i>پے اسکرین شاٹ اپلوڈ کریں (لازمی)</span>
+                <img id="pay-screenshot-preview" src="#" alt="Screenshot Preview">
+            </div>
+            <input type="file" id="pay-screenshot-input" accept="image/*" style="display:none;" onchange="previewScreenshotImage(this)">
+
+            <button class="btn btn-gold" onclick="submitPaymentRequest()">پیمنٹ سبمٹ کریں</button>
+        </div>
+
+        <!-- Dynamic 24 Hours Pending Verification Screen -->
+        <div id="screen-payment-pending" class="screen">
+            <div style="text-align: center; margin-top: 50px; padding: 20px;">
+                <i class="fa-solid fa-clock-rotate-left" style="font-size: 60px; color: var(--primary-color); animation: pulse-icon 2s infinite;"></i>
+                <h3 style="color: var(--primary-color); margin-top: 25px;">ادائیگی کی تصدیق جاری ہے</h3>
+                <p style="margin-top: 15px; line-height: 1.6; color: #ccc;">ہم آپ کی پیمنٹ کی تصدیق کر رہے ہیں۔ براہ کرم 24 گھنٹے تک انتظار کریں۔ جیسے ہی ایڈمن تصدیق کرے گا، آپ کے اکاؤنٹ کی حد بڑھا دی جائے گی اور مائے ایڈ پیج اوپن ہو جائے گا۔</p>
+                <button class="btn btn-gold" onclick="navigate('home')" style="margin-top:30px;">ہوم پیج پر جائیں</button>
+            </div>
+        </div>
+
+        <div id="screen-my-ads" class="screen">
+            <h3 style="margin-bottom:15px; color:var(--primary-color);" id="lbl-myads-head">میرے اشتہارات</h3>
+            <div id="my-ads-container"></div>
+        </div>
+
+        <div id="screen-booking" class="screen">
+            <i class="fa-solid fa-arrow-right back-arrow" onclick="navigate('home')"></i>
+            <h3 id="book-shop-title" style="color:var(--primary-color);">دکان کی تفصیلات</h3>
+            <img id="book-shop-img" src="" style="width:100%; height:150px; object-fit:cover; border-radius:8px; margin:10px 0; border:1px solid var(--primary-color); display:none;">
+            <p id="book-barber-detail" style="font-size:14px; margin-bottom:10px;"></p>
+            
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <button class="btn btn-gray" id="btn-call-provider"><i class="fa-solid fa-phone"></i> کال کریں</button>
+                <button class="btn btn-gray" id="btn-map-provider"><i class="fa-solid fa-map-location-dot"></i> لوکیشن</button>
+            </div>
+
+            <p style="font-weight:bold; margin-bottom:10px;" id="lbl-select-srv">سروس منتخب کریں (رقم خودکار جمع ہوگی):</p>
+            <div id="booking-services-list"></div>
+
+            <h4 style="margin: 15px 0; color:var(--primary-color);">کل رقم: <span id="total-booking-amount">0</span></h4>
+
+            <div class="input-group">
+                <input type="date" id="book-date">
+            </div>
+            <div class="input-group">
+                <input type="time" id="book-time">
+            </div>
+
+            <button class="btn btn-gold" onclick="submitOrder()" id="lbl-btn-book">آرڈر بک کریں (سبمٹ)</button>
+        </div>
+
+        <div id="screen-my-bookings" class="screen">
+            <h3 style="margin-bottom:15px; color:var(--primary-color);" id="lbl-mybook-head">میری بکنگز</h3>
+            <div id="my-bookings-container"></div>
+        </div>
+
+        <div id="screen-profile" class="screen">
+            <h3 style="color:var(--primary-color); margin-bottom:15px;" id="lbl-prof-head">پروفائل مینجمنٹ</h3>
+            <p style="margin-bottom:20px;" id="profile-user-email"></p>
+            
+            <button class="btn btn-gray" onclick="togglePrivacy(true)" style="background-color: #333; border: 1px solid var(--primary-color);"><i class="fa-solid fa-user-shield"></i> پرائیویسی پالیسی پڑھیں</button>
+            <button class="btn btn-gray" onclick="logout()" id="lbl-logout"><i class="fa-solid fa-right-from-bracket"></i> لاگ آؤٹ</button>
+            <button class="btn btn-gray" onclick="deleteAccount()" style="background-color:#cc0000;" id="lbl-del-acc"><i class="fa-solid fa-trash"></i> اکاؤنٹ مکمل ڈیلیٹ کریں</button>
+        </div>
+
+        <div id="screen-complaint" class="screen">
+            <h3 style="color:var(--primary-color); margin-bottom:15px;" id="lbl-comp-head">کمپلین سینٹر</h3>
+            <div class="input-group">
+                <input type="text" id="comp-subject" placeholder="شکایت کا عنوان">
+            </div>
+            <div class="input-group">
+                <input type="text" id="comp-msg" placeholder="اپنی شکایت یہاں لکھیں..." style="height:100px;">
+            </div>
+            <button class="btn btn-gold" onclick="window.submitComplaint()" id="lbl-comp-btn">شکایت جمع کریں</button>
+        </div>
+
+    </div>
+
+    <nav class="bottom-nav" id="app-bottom-nav"></nav>
+</div>
+
+<script type="text/javascript">
+    function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+            pageLanguage: 'ur',
+            includedLanguages: 'en,ur,hi,ar',
+            autoDisplay: false
+        }, 'google_translate_element');
+    }
+
+    // Fully-automated instant Live Translator Engine Trigger
+    window.triggerGoogleTranslate = function(langCode) {
+        document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        
+        const btn = Array.from(document.querySelectorAll('.lang-btn')).find(b => b.getAttribute('onclick').includes(langCode));
+        if(btn) btn.classList.add('active');
+
+        const selectEl = document.querySelector('select.goog-te-combo');
+        if (selectEl) {
+            selectEl.value = langCode;
+            selectEl.dispatchEvent(new Event('change'));
+        } else {
+            setTimeout(() => {
+                const retrySelect = document.querySelector('select.goog-te-combo');
+                if (retrySelect) {
+                    retrySelect.value = langCode;
+                    retrySelect.dispatchEvent(new Event('change'));
+                } else {
+                    alert("مترجم سسٹم لوڈ ہو رہا ہے، ایک سیکنڈ بعد دوبارہ کوشش کریں۔");
+                }
+            }, 800);
+        }
+    };
+
+    window.togglePrivacy = function(show) {
+        const overlay = document.getElementById('privacyOverlay');
+        overlay.style.display = show ? 'flex' : 'none';
+    };
+
+    // Switch between Login and Registration Form state fields
+    window.switchAuthMode = function(mode) {
+        document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+        document.getElementById(`tab-${mode}`).classList.add('active');
+
+        const regFields = document.getElementById('register-fields-container');
+        const loginBtn = document.getElementById('lbl-cust-login');
+        const barberBtn = document.getElementById('lbl-barber-login');
+
+        if (mode === 'register') {
+            regFields.style.display = "block";
+            loginBtn.innerText = "کسٹمر رجسٹریشن";
+            barberBtn.innerText = "دکاندار رجسٹریشن";
+        } else {
+            regFields.style.display = "none";
+            loginBtn.innerText = "کسٹمر لاگ ان";
+            barberBtn.innerText = "دکاندار لاگ ان";
+        }
+    };
+</script>
+<script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, deleteUser, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-auth.js";
+    import { getDatabase, ref, set, push, onValue, remove, update } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAPN3iModqAS1iXwjRgNPD0mPsbc8j-yNc",
+        authDomain: "plastic-bottle-6b67e.firebaseapp.com",
+        databaseURL: "https://plastic-bottle-6b67e-default-rtdb.firebaseio.com",
+        projectId: "plastic-bottle-6b67e",
+        storageBucket: "plastic-bottle-6b67e.firebasestorage.app",
+        messagingSenderId: "664805419723",
+        appId: "1:664805419723:web:46e123e05250aa0642c94e",
+        measurementId: "G-MRTK6LTWMG"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+
+    let currentUserType = null; 
+    let currentUserId = null; 
+    let selectedAdForBooking = null;
+    let alarmInterval = null;
+    let encodedImageBase64 = ""; 
+    let encodedScreenshotBase64 = ""; 
+
+    let adLimit = 2; 
+    let billingStatus = "none"; 
+    let userProfileCached = {}; 
+
+    let alarmAudio = new Audio('https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg');
+    alarmAudio.loop = true;
+
+    const placeholderShopImg = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400";
+
+    // Standard Registration of Inline Blob Service Worker for Closed-App background Push notifications
+    if ('serviceWorker' in navigator) {
+        const swCode = `
+            self.addEventListener('push', function(event) {
+                const data = event.data ? event.data.json() : { title: 'StyleLink', body: 'نئی بکنگ موصول ہوئی ہے! براہ کرم کنفرم کریں۔' };
+                event.waitUntil(
+                    self.registration.showNotification(data.title, {
+                        body: data.body,
+                        icon: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=100',
+                        vibrate: [200, 100, 200]
+                    })
+                );
+            });
+        `;
+        const blob = new Blob([swCode], { type: 'application/javascript' });
+        const swUrl = URL.createObjectURL(blob);
+        navigator.serviceWorker.register(swUrl).then((reg) => {
+            console.log('Background Service Worker Configured Successfully.');
+        }).catch((err) => {
+            console.log('SW setup bypassed: ', err.message);
+        });
+    }
+
+    setInterval(() => {
+        const now = new Date();
+        document.getElementById('header-date').innerText = now.toLocaleDateString();
+        document.getElementById('header-time').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    }, 1000);
+
+    // Dynamic Navigation Routing Guard Checks with LocalStorage State Storage
+    window.navigate = function(screenId) {
+        if (!currentUserId && screenId !== 'login') {
+            screenId = 'login';
+        }
+        if (screenId === 'create-ad' && billingStatus === 'pending') {
+            screenId = 'payment-pending';
+        }
+
+        // Keep current screen memorized in localStorage to prevent loss on refresh
+        localStorage.setItem('currentScreen', screenId);
+
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        const targetScreen = document.getElementById(`screen-${screenId}`);
+        if(targetScreen) targetScreen.classList.add('active');
+        
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        const activeNav = document.querySelector(`[onclick="navigate('${screenId}')"]`);
+        if(activeNav) activeNav.classList.add('active');
+    };
+
+    function buildNavbar() {
+        const nav = document.getElementById('app-bottom-nav');
+        nav.style.display = 'flex';
+
+        const roleBadge = document.getElementById('header-role-badge');
+
+        if(currentUserType === 'barber') {
+            nav.innerHTML = `
+                <div class="nav-item active" onclick="navigate('home')"><i class="fa-solid fa-house"></i><span>ہوم</span></div>
+                <div class="nav-item" onclick="navigate('create-ad')"><i class="fa-solid fa-plus-circle"></i><span>ایڈ لگائیں</span></div>
+                <div class="nav-item" onclick="navigate('my-ads')"><i class="fa-solid fa-rectangle-ad"></i><span>مائے ایڈ</span></div>
+                <div class="nav-item" onclick="navigate('profile')"><i class="fa-solid fa-user"></i><span>پروفائل</span></div>
+            `;
+            // Symmetrical Header sidelinks display for Barber
+            document.getElementById('header-noti-btn').style.display = 'block';
+            document.getElementById('header-comp-btn').style.display = 'block';
+            
+            // Set Dynamic Center Role Badge
+            roleBadge.innerText = "دکاندار پیج";
+        } else {
+            nav.innerHTML = `
+                <div class="nav-item" onclick="navigate('home')"><i class="fa-solid fa-house"></i><span>ہوم</span></div>
+                <div class="nav-item active" onclick="navigate('my-bookings')"><i class="fa-solid fa-calendar-check"></i><span>بکنگز</span></div>
+                <div class="nav-item" onclick="navigate('complaint')"><i class="fa-solid fa-circle-exclamation"></i><span>شکایت</span></div>
+                <div class="nav-item" onclick="navigate('profile')"><i class="fa-solid fa-user"></i><span>پروفائل</span></div>
+            `;
+            // Hide Barber Sidelinks for Customer
+            document.getElementById('header-noti-btn').style.display = 'none';
+            document.getElementById('header-comp-btn').style.display = 'none';
+            
+            // Set Dynamic Center Role Badge
+            roleBadge.innerText = "کسٹمر پیج";
+        }
+    }
+
+    // A to Z Audit: Listen to Firebase Authentication State Changes (Persistent Sessions Loader)
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            currentUserId = user.uid;
+            
+            // Fast loading fallback from local storage
+            const localRole = localStorage.getItem('userType') || 'customer';
+            currentUserType = localRole;
+            document.getElementById('profile-user-email').innerText = "لاگ ان اکاؤنٹ: " + user.email;
+            buildNavbar();
+
+            // Direct data synchronization from Firebase node (Users/UID)
+            onValue(ref(db, `users/${user.uid}`), (snapshot) => {
+                const data = snapshot.val();
+                if (data && data.role) {
+                    currentUserType = data.role;
+                    userProfileCached = data; // cache profile metadata locally
+
+                    localStorage.setItem('userType', data.role);
+                    buildNavbar();
+                    
+                    // Auto-fill ad form data
+                    if (data.role === 'barber') {
+                        document.getElementById('ad-barber-name').value = data.name || "";
+                        document.getElementById('ad-phone').value = data.phone || "";
+
+                        // Auto-fill payment fields
+                        document.getElementById('pay-name').value = data.name || "";
+                        document.getElementById('pay-phone').value = data.phone || "";
+                        document.getElementById('pay-email').value = data.email || "";
+                    }
+
+                    // Activate live data listeners once the role is established
+                    listenToDataStreams();
+
+                    // Route to correct stored view
+                    const restoredScreen = localStorage.getItem('currentScreen') || 'home';
+                    navigate(restoredScreen);
+                } else {
+                    listenToDataStreams();
+                    const restoredScreen = localStorage.getItem('currentScreen') || 'home';
+                    navigate(restoredScreen);
+                }
+            }, { onlyOnce: true });
+
+        } else {
+            // Null state if logged out
+            currentUserType = null;
+            currentUserId = null;
+            localStorage.clear();
+            document.getElementById('header-noti-btn').style.display = 'none';
+            document.getElementById('header-comp-btn').style.display = 'none';
+            document.getElementById('app-bottom-nav').style.display = 'none';
+            document.getElementById('header-role-badge').innerText = "StyleLink";
+            navigate('login');
+        }
+    });
+
+    window.previewSelectedImage = function(inputElement) {
+        const file = inputElement.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                encodedImageBase64 = e.target.result;
+                const previewImg = document.getElementById('ad-image-preview');
+                previewImg.src = encodedImageBase64;
+                previewImg.style.display = 'block';
+                document.getElementById('preview-placeholder').style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+        }
+    };
+
+    window.previewScreenshotImage = function(inputElement) {
+        const file = inputElement.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                encodedScreenshotBase64 = e.target.result;
+                const previewImg = document.getElementById('pay-screenshot-preview');
+                previewImg.src = encodedScreenshotBase64;
+                previewImg.style.display = 'block';
+                document.getElementById('screenshot-placeholder').style.display = 'none';
+            }
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // Firebase Auth login wrapper with Mode selectors
+    window.loginAs = function(type) {
+        const email = document.getElementById('login-email').value;
+        const pass = document.getElementById('login-pass').value;
+        
+        const isRegisterMode = document.getElementById('tab-register').classList.contains('active');
+
+        if(!email || !pass) {
+            alert("براہ کرم ای میل اور پاس ورڈ درج کریں۔");
+            return;
+        }
+
+        if (isRegisterMode) {
+            // Signup mode: collect name and mobile number first
+            const fullName = document.getElementById('reg-name').value;
+            const mobileNo = document.getElementById('reg-phone').value;
+
+            if (!fullName || !mobileNo) {
+                alert("براہ کرم رجسٹریشن کے لیے اپنا نام اور موبائل نمبر لازمی درج کریں۔");
+                return;
+            }
+
+            createUserWithEmailAndPassword(auth, email, pass)
+                .then((userCredential) => {
+                    currentUserId = userCredential.user.uid;
+                    currentUserType = type;
+                    localStorage.setItem('userType', type);
+                    document.getElementById('profile-user-email').innerText = "نیا اکاؤنٹ رجسٹرڈ: " + email;
+
+                    // Save unified A to Z meta data structure in RTDB
+                    set(ref(db, `users/${currentUserId}`), {
+                        name: fullName,
+                        phone: mobileNo,
+                        email: email,
+                        role: type,
+                        lastLogin: Date.now(),
+                        createdAt: Date.now()
+                    }).then(() => {
+                        buildNavbar();
+                        navigate('home');
+                        listenToDataStreams();
+                    });
+                })
+                .catch((regError) => {
+                    alert("رجسٹریشن کی خرابی: " + regError.message);
+                });
+        } else {
+            // Standard login mode
+            signInWithEmailAndPassword(auth, email, pass)
+                .then((userCredential) => {
+                    currentUserId = userCredential.user.uid;
+                    currentUserType = type;
+                    localStorage.setItem('userType', type);
+                    document.getElementById('profile-user-email').innerText = "لاگ ان اکاؤنٹ: " + email;
+
+                    // Just update login timestamp
+                    update(ref(db, `users/${currentUserId}`), {
+                        lastLogin: Date.now()
+                    });
+
+                    buildNavbar();
+                    navigate('home');
+                    listenToDataStreams();
+                })
+                .catch((error) => {
+                    alert("فائر بیس لاگ ان غلطی: " + error.message);
+                });
+        }
+    };
+
+    window.getLiveLocation = function(targetInputId) {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                document.getElementById(targetInputId).value = `${pos.coords.latitude}, ${pos.coords.longitude}`;
+            }, () => {
+                document.getElementById(targetInputId).value = "31.5204, 74.3587";
+            });
+        }
+    };
+
+    window.publishAd = function() {
+        const shop = document.getElementById('ad-shop-name').value;
+        const name = document.getElementById('ad-barber-name').value;
+        const phone = document.getElementById('ad-phone').value;
+        const loc = document.getElementById('ad-location').value || "31.5204, 74.3587";
+
+        if(!shop || !name || !phone) return alert("براہ کرم تمام لازمی فیلڈز پُر کریں۔");
+
+        const services = {};
+        if(document.getElementById('price-cutting').value) services["کٹنگ"] = Number(document.getElementById('price-cutting').value);
+        if(document.getElementById('price-shave').value) services["شیو"] = Number(document.getElementById('price-shave').value);
+        if(document.getElementById('price-facial').value) services["فیشل"] = Number(document.getElementById('price-facial').value);
+
+        const expirationTime = Date.now() + (7 * 24 * 60 * 60 * 1000);
+
+        const adsRef = ref(db, `barber_ads`);
+        push(adsRef, {
+            barberId: currentUserId,
+            shopName: shop,
+            barberName: name,
+            phone: phone,
+            location: loc,
+            services: services,
+            image: encodedImageBase64 || placeholderShopImg,
+            rating: 5,
+            createdAt: Date.now(),
+            expiresAt: expirationTime
+        }).then(() => {
+            alert("اشتہار کامیابی کے ساتھ پبلش ہو گیا ہے! اس اشتہار کی معیاد 7 دن ہے۔");
+            encodedImageBase64 = "";
+            document.getElementById('ad-image-preview').style.display = 'none';
+            document.getElementById('preview-placeholder').style.display = 'block';
+            document.getElementById('ad-shop-name').value = "";
+            navigate('home');
+        });
+    };
+
+    window.submitPaymentRequest = function() {
+        const txnId = document.getElementById('pay-id').value;
+
+        if (!txnId || !encodedScreenshotBase64) {
+            alert("براہ کرم پے آئی ڈی درج کریں اور پے اسکرین شاٹ لازمی اپلوڈ کریں۔");
+            return;
+        }
+
+        const billingRef = ref(db, `billing_records/${currentUserId}`);
+        set(billingRef, {
+            payerName: userProfileCached.name || "Unknown",
+            payerPhone: userProfileCached.phone || "Unknown",
+            payerEmail: userProfileCached.email || auth.currentUser.email,
+            transactionId: txnId,
+            amount: 1000,
+            screenshot: encodedScreenshotBase64,
+            status: "pending",
+            submittedAt: Date.now()
+        }).then(() => {
+            alert("ادائیگی کی درخواست کامیابی کے ساتھ جمع ہو گئی ہے۔ 24 گھنٹے انتظار کا صفحہ فعال ہو رہا ہے۔");
+            document.getElementById('pay-id').value = "";
+            document.getElementById('pay-screenshot-preview').style.display = 'none';
+            document.getElementById('screenshot-placeholder').style.display = 'block';
+            encodedScreenshotBase64 = "";
+            billingStatus = "pending";
+            navigate('payment-pending');
+        });
+    };
+
+    window.submitComplaint = function() {
+        const subject = document.getElementById('comp-subject').value;
+        const message = document.getElementById('comp-msg').value;
+
+        if(!subject || !message) {
+            alert("براہ کرم شکایت کا عنوان اور تفصیل لکھیں۔");
+            return;
+        }
+
+        const complaintRef = ref(db, 'complaints');
+        push(complaintRef, {
+            userId: currentUserId,
+            userType: currentUserType,
+            userEmail: auth.currentUser ? auth.currentUser.email : "Unknown",
+            subject: subject,
+            message: message,
+            status: "پینڈنگ",
+            timestamp: Date.now()
+        }).then(() => {
+            alert("شکایت فائر بیس پر کامیابی کے ساتھ درج کر دی گئی ہے! ایڈمن پینل سے جلد ہی رابطہ کیا جائے گا۔");
+            document.getElementById('comp-subject').value = "";
+            document.getElementById('comp-msg').value = "";
+            navigate('home');
+        }).catch((err) => {
+            alert("شکایت درج کرنے میں خرابی پیش آئی: " + err.message);
+        });
+    };
+
+    function getRemainingTimeText(expiresAt) {
+        const diff = expiresAt - Date.now();
+        if (diff <= 0) {
+            return "میعاد ختم";
+        }
+        const totalHours = Math.floor(diff / (1000 * 60 * 60));
+        const days = Math.floor(totalHours / 24);
+        const hours = totalHours % 24;
+
+        return `باقی وقت: ${days} دن، ${hours} گھنٹے`;
+    }
+
+    window.deleteAd = function(id) {
+        if(confirm("کیا آپ واقعی یہ ایڈ ڈیلیٹ کرنا چاہتے ہیں؟")) {
+            const adRef = ref(db, `barber_ads/${id}`);
+            remove(adRef).then(() => {
+                alert("اشتہار کامیابی کے ساتھ حذف کر دیا گیا ہے۔");
+            }).catch((err) => {
+                alert("ڈیلیٹ کرنے میں خرابی آئی: " + err.message);
+            });
+        }
+    };
+
+    window.deleteBooking = function(id) {
+        if(confirm("کیا آپ واقعی یہ بکنگ ریکارڈ خارج (ڈیلیٹ) کرنا چاہتے ہیں؟")) {
+            const bookingRef = ref(db, `bookings/${id}`);
+            remove(bookingRef).then(() => {
+                alert("بکنگ ریکارڈ مستقل طور پر حذف کر دیا گیا ہے۔");
+            }).catch((err) => {
+                alert("حذف کرنے میں ناکامی: " + err.message);
+            });
+        }
+    };
+
+    function listenToDataStreams() {
+        let previousStatus = null;
+
+        onValue(ref(db, `billing_records/${currentUserId}`), (billingSnapshot) => {
+            const billingData = billingSnapshot.val();
+            let newStatus = "none";
+            if (billingData) {
+                newStatus = billingData.status; 
+            }
+            
+            if (previousStatus === 'pending' && newStatus === 'approved') {
+                alert("آپ کی ادائیگی کی تصدیق ہو گئی ہے! مائے ایڈ پیج اوپن ہو رہا ہے۔");
+                adLimit = 5;
+                billingStatus = "approved";
+                navigate('my-ads');
+            } else if (newStatus === 'approved') {
+                adLimit = 5;
+            } else {
+                adLimit = 2;
+            }
+
+            previousStatus = newStatus;
+            billingStatus = newStatus;
+
+            const currentActiveScreen = document.querySelector('.screen.active');
+            if (billingStatus === "pending" && currentActiveScreen && currentActiveScreen.id === "screen-create-ad") {
+                navigate('payment-pending');
+            }
+        });
+
+        onValue(ref(db, 'barber_ads'), (snapshot) => {
+            const data = snapshot.val() || {}; 
+            const homeContainer = document.getElementById('ads-list-container');
+            const myAdsContainer = document.getElementById('my-ads-container');
+            
+            homeContainer.innerHTML = "";
+            myAdsContainer.innerHTML = "";
+            
+            let myAdCount = 0;
+            let homeAdCount = 0;
+
+            for(let key in data) {
+                const item = data[key];
+                if (!item) continue; 
+
+                const isExpired = item.expiresAt && (Date.now() > item.expiresAt);
+                if (isExpired) {
+                    continue; 
+                }
+
+                const displayImage = item.image || placeholderShopImg;
+                const timeRemainingStr = item.expiresAt ? getRemainingTimeText(item.expiresAt) : "لامحدود";
+
+                const adHtml = `
+                    <div class="ad-info">
+                        <img src="${displayImage}" class="ad-img" alt="Shop Photo">
+                        <div>
+                            <h4 style="color:var(--primary-color);">${item.shopName || ''}</h4>
+                            <p style="font-size:12px; color:#bbb;">نام: ${item.barberName || ''} | فون: ${item.phone || ''}</p>
+                            <div class="rating"><i class="fa-solid fa-star"></i> ${item.rating || 5}.0</div>
+                            <span class="expiry-badge"><i class="fa-regular fa-clock"></i> ${timeRemainingStr}</span>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-left" style="color:var(--primary-color); margin-right: auto;"></i>
+                `;
+
+                const divHome = document.createElement('div');
+                divHome.className = "ad-strip";
+                divHome.id = `ad-${key}`;
+                divHome.innerHTML = adHtml;
+                divHome.onclick = () => window.openBookingPage(key, item);
+                homeContainer.appendChild(divHome);
+                homeAdCount++;
+
+                if(item.barberId === currentUserId) {
+                    myAdCount++;
+                    
+                    const divMy = document.createElement('div');
+                    divMy.className = "ad-strip-container";
+                    divMy.style.cssText = "background: var(--card-bg); border-radius: 10px; padding: 12px; margin-bottom: 12px; border-left: 4px solid var(--primary-color);";
+                    
+                    const innerStrip = document.createElement('div');
+                    innerStrip.className = "ad-strip";
+                    innerStrip.style.cssText = "border-left: none; background: transparent; padding: 0; margin: 0;";
+                    innerStrip.innerHTML = adHtml;
+                    divMy.appendChild(innerStrip);
+
+                    const delBtn = document.createElement('button');
+                    delBtn.className = "btn btn-gray";
+                    delBtn.style.cssText = "background:#cc0000; font-size:12px; padding:8px; margin-top:10px; width:100%; border:none; border-radius:8px; cursor:pointer;";
+                    delBtn.innerHTML = '<i class="fa-solid fa-trash"></i> ایڈ ڈیلیٹ کریں';
+                    delBtn.onclick = function(e) {
+                        e.stopPropagation();
+                        window.deleteAd(key);
+                    };
+
+                    divMy.appendChild(delBtn);
+                    myAdsContainer.appendChild(divMy);
+                }
+            }
+
+            if (homeAdCount === 0) {
+                homeContainer.innerHTML = `<p style="text-align:center; color:#666; margin-top:20px;">کوئی اشتہار دستیاب نہیں ہے</p>`;
+            }
+            if (myAdCount === 0) {
+                myAdsContainer.innerHTML = `<p style="text-align:center; color:#666; margin-top:20px;">آپ کا کوئی اشتہار موجود نہیں ہے</p>`;
+            }
+
+            const billingIndicator = document.getElementById('billing-indicator');
+            const adCreateFormWrapper = document.getElementById('ad-create-form-wrapper');
+
+            document.getElementById('lbl-myads-head').innerText = `میرے اشتہارات (حد: ${adLimit})`;
+
+            if (myAdCount >= adLimit) {
+                document.getElementById('lbl-add-head').innerText = `اشتہار کی حد مکمل ہو چکی ہے۔ (حد: ${adLimit})`;
+                adCreateFormWrapper.style.display = "none";
+                billingIndicator.style.display = "block";
+
+                if (billingStatus === "pending") {
+                    billingIndicator.innerText = "آپ کی پیمنٹ کی تصدیق کا عمل جاری ہے۔ براہ کرم 24 گھنٹے تک انتظار کریں۔";
+                    billingIndicator.style.pointerEvents = "none";
+                } else if (billingStatus === "approved") {
+                    billingIndicator.style.display = "none";
+                    adCreateFormWrapper.style.display = "block";
+                    document.getElementById('lbl-add-head').innerText = `نیا اشتہار لگائیں (حد: 5)`;
+                } else {
+                    billingIndicator.innerHTML = `<i class="fa-solid fa-wallet"></i> اشتہار کی حد ختم! 5 اشتہارات کے لیے یہاں کلک کر کے پے کریں۔`;
+                    billingIndicator.style.pointerEvents = "auto";
+                }
+            } else {
+                adCreateFormWrapper.style.display = "block";
+                billingIndicator.style.display = "none";
+                document.getElementById('lbl-add-head').innerText = "نیا اشتہار لگائیں";
+            }
+        });
+
+        onValue(ref(db, 'bookings'), (snapshot) => {
+            const data = snapshot.val();
+            const container = document.getElementById('my-bookings-container');
+            container.innerHTML = "";
+
+            if (data) {
+                for(let key in data) {
+                    const b = data[key];
+                    if (!b) continue;
+
+                    if(b.customerId === currentUserId || b.barberId === currentUserId) {
+                        
+                        let cardBorderColor = "border-right: 4px solid var(--primary-color);"; 
+                        let statusLabelColor = "color: yellow;";
+                        
+                        if (b.status === "تصدیق شدہ") {
+                            cardBorderColor = "border-right: 4px solid #28a745;"; 
+                            statusLabelColor = "color: #28a745; font-weight: bold;";
+                        } else if (b.status === "منسوخ") {
+                            cardBorderColor = "border-right: 4px solid #dc3545;"; 
+                            statusLabelColor = "color: #dc3545; font-weight: bold;";
+                        }
+
+                        let servicesDetailsHtml = "";
+                        if (b.services && Array.isArray(b.services)) {
+                            servicesDetailsHtml = `<div style="font-size:11px; color:#aaa; margin:5px 0;">خدمات: ` + 
+                                b.services.map(s => `${s.name} (${s.price} PKR)`).join(', ') + `</div>`;
+                        }
+
+                        const bHtml = `
+                            <div style="background:var(--card-bg); padding:12px; border-radius:8px; margin-bottom:10px; ${cardBorderColor}">
+                                <h4>دکان: ${b.shopName}</h4>
+                                <p style="font-size:12px;">تاریخ: ${b.date} | وقت: ${b.time}</p>
+                                ${servicesDetailsHtml}
+                                <p style="color:var(--primary-color); font-weight:bold;">رقم: ${b.amount} PKR</p>
+                                <p style="font-size:12px; color:#aaa;">اسٹیٹس: <span style="${statusLabelColor}">${b.status}</span></p>
+                                <div style="margin-top:8px; display:flex; gap:5px;">
+                                    ${currentUserType === 'barber' && b.status === 'پینڈنگ' ? `<button class="btn btn-gold" style="padding:5px; font-size:11px; margin-bottom: 0;" onclick="window.updateBookingStatus('${key}','تصدیق شدہ')">کنفرم کریں</button>` : ''}
+                                    <button class="btn btn-gray" style="background:red; padding:5px; font-size:11px; margin-bottom: 0; flex: 1;" onclick="window.updateBookingStatus('${key}','منسوخ')">کینسل کریں</button>
+                                    <button class="btn btn-gray" style="background:#555; padding:5px; font-size:11px; margin-bottom: 0; flex: 1;" onclick="window.deleteBooking('${key}')"><i class="fa-solid fa-trash"></i> ڈیلیٹ کریں</button>
+                                </div>
+                            </div>
+                        `;
+                        container.innerHTML += bHtml;
+
+                        if(currentUserType === 'barber' && b.barberId === currentUserId && b.status === 'پینڈنگ' && !alarmInterval) {
+                            triggerSystemAlarm(b);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    window.openBookingPage = function(id, item) {
+        if(currentUserType !== 'customer') {
+            alert("صرف کسٹمر اکاؤنٹ ہی بکنگ کر سکتا ہے۔");
+            return;
+        }
+        selectedAdForBooking = { id, ...item };
+        
+        document.getElementById('book-shop-title').innerText = item.shopName;
+        document.getElementById('book-barber-detail').innerText = `دکاندار: ${item.barberName} | فون: ${item.phone}`;
+        
+        const bImg = document.getElementById('book-shop-img');
+        if(item.image) {
+            bImg.src = item.image;
+            bImg.style.display = "block";
+        } else {
+            bImg.style.display = "none";
+        }
+
+        document.getElementById('btn-call-provider').onclick = () => window.open(`tel:${item.phone}`);
+        document.getElementById('btn-map-provider').onclick = () => window.open(`https://maps.google.com/?q=${item.location}`);
+
+        const srvContainer = document.getElementById('booking-services-list');
+        srvContainer.innerHTML = "";
+        
+        for(let sName in item.services) {
+            srvContainer.innerHTML += `
+                <div class="checkbox-container">
+                    <label><input type="checkbox" class="srv-chk" value="${item.services[sName]}" onchange="window.calculateBookingTotal()"> ${sName}</label>
+                    <span>${item.services[sName]} PKR</span>
+                </div>
+            `;
+        }
+        
+        document.getElementById('total-booking-amount').innerText = "0";
+        navigate('booking');
+    };
+
+    window.calculateBookingTotal = function() {
+        let total = 0;
+        document.querySelectorAll('.srv-chk:checked').forEach(chk => {
+            total += Number(chk.value);
+        });
+        document.getElementById('total-booking-amount').innerText = total;
+    };
+
+    window.submitOrder = function() {
+        const date = document.getElementById('book-date').value;
+        const time = document.getElementById('book-time').value;
+        const amt = document.getElementById('total-booking-amount').innerText;
+
+        if(!date || !time || amt === "0") return alert("برائے مہربانی تاریخ، وقت اور سروسز منتخب کریں۔");
+
+        const selectedServices = [];
+        document.querySelectorAll('.srv-chk:checked').forEach(chk => {
+            const labelText = chk.parentElement.textContent.trim();
+            selectedServices.push({ name: labelText, price: Number(chk.value) });
+        });
+
+        const bookingRef = ref(db, 'bookings');
+        push(bookingRef, {
+            barberId: selectedAdForBooking.barberId,
+            customerId: currentUserId,
+            shopName: selectedAdForBooking.shopName,
+            date: date,
+            time: time,
+            amount: amt,
+            services: selectedServices, 
+            status: "پینڈنگ",
+            createdAt: Date.now()
+        }).then(() => {
+            alert("آرڈر بک ہو گیا ہے! دکاندار کو مطلع کر دیا گیا ہے۔");
+            navigate('my-bookings');
+        });
+    };
+
+    window.updateBookingStatus = function(id, status) {
+        update(ref(db, `bookings/${id}`), { status: status }).then(() => {
+            if(status === 'تصدیق شدہ') window.stopAlarm();
+        });
+    };
+
+    function triggerSystemAlarm(bookingItem) {
+        document.getElementById('alarmTitle').innerText = `نئی بکنگ: ${bookingItem.shopName}`;
+        document.getElementById('alarmBody').innerText = `رقم: ${bookingItem.amount} PKR - کسٹمر ویٹنگ میں ہے!`;
+        document.getElementById('alarmScreen').style.display = 'flex';
+        
+        try {
+            alarmAudio.play();
+        } catch(e) { console.log("Audio play deferred."); }
+
+        alarmInterval = setTimeout(() => {
+            window.stopAlarm();
+        }, 30000);
+    }
+
+    window.stopAlarm = function() {
+        document.getElementById('alarmScreen').style.display = 'none';
+        alarmAudio.pause();
+        alarmAudio.currentTime = 0;
+        if(alarmInterval) {
+            clearTimeout(alarmInterval);
+            alarmInterval = null;
+        }
+        navigate('my-bookings');
+    };
+
+    window.logout = function() {
+        signOut(auth).then(() => {
+            localStorage.clear();
+            location.reload();
+        });
+    };
+
+    window.deleteAccount = function() {
+        if(confirm("کیا آپ واقعی اپنا اکاؤنٹ مستقل طور پر حذف کرنا چاہتے ہیں؟")) {
+            const user = auth.currentUser;
+            if(user) {
+                remove(ref(db, `users/${currentUserId}`)).then(() => {
+                    deleteUser(user).then(() => {
+                        alert("اکاؤنٹ حذف کر دیا گیا ہے۔");
+                        localStorage.clear();
+                        location.reload();
+                    }).catch(() => alert("اکاؤنٹ ڈیلیٹ کرنے سے پہلے دوبارہ لاگ ان کریں۔"));
+                });
+            } else {
+                location.reload();
+            }
+        }
+    };
+</script>
+
+</body>
+</html>
+
