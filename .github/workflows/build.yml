@@ -186,10 +186,12 @@ jobs:
           EOF
           echo "org.gradle.jvmargs=-Xmx2048m" > gradle.properties
 
-      - name: Build Official Signed AAB and APK Files
+      - name: Build Official Signed AAB and APK Files (Clean Cache Mode)
         run: |
+          # پرانے کیشے کے ٹکراؤ کو ختم کرنے کے لیے گرڈل کو نئی ڈائریکٹری دینا
+          export GRADLE_USER_HOME=$HOME/.gradle_clean
           gradle wrapper --gradle-version 8.5
-          ./gradlew bundleRelease assembleRelease
+          ./gradlew bundleRelease assembleRelease --no-build-cache
 
       - name: Upload StyleLinkPro Official Signed AAB File
         uses: actions/upload-artifact@v4
