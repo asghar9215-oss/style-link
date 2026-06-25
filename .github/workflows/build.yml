@@ -31,7 +31,7 @@ jobs:
           mkdir -p app/src/main/res/values
           mkdir -p app/src/main/java/com/afuma/stylelink
 
-      # 🚀 ماسٹر جاوا کوڈ: ٹائم کریش فکس، واٹس ایپ ڈائریکٹ اوپنر، اور پی ڈی ایف/فائل ڈاؤنلوڈ سپورٹ کے ساتھ
+      # 🚀 فکسڈ جاوا کوڈ: URLUtil لائبریری کو امپورٹ کر دیا گیا ہے
       - name: Generate Android Native Java Source Code
         run: |
           cat << 'EOF' > app/src/main/java/com/afuma/stylelink/MainActivity.java
@@ -47,6 +47,7 @@ jobs:
           import android.webkit.GeolocationPermissions;
           import android.webkit.WebChromeClient;
           import android.webkit.ValueCallback;
+          import android.webkit.URLUtil;
           import android.os.Build;
           import android.os.Environment;
           import android.app.DownloadManager;
@@ -62,7 +63,7 @@ jobs:
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
                   
-                  // لوکیشن کی بنیادی پرمیشنز
+                  // لوکیشن اور سٹوریج کی بنیادی پرمیشنز
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                       requestPermissions(new String[]{
                               "android.permission.ACCESS_FINE_LOCATION",
@@ -79,7 +80,7 @@ jobs:
                   webSettings.setGeolocationEnabled(true);
                   webSettings.setDatabaseEnabled(true);
                   
-                  // ٹائم پیکر اور ایچ ٹی ایم ایل ان پٹ فارمز کو کریش سے بچانے کی سیٹنگز
+                  // ٹائم پیکر اور فارمز کو محفوظ رکھنے کی سیٹنگز
                   webSettings.setAllowContentAccess(true);
                   webSettings.setMediaPlaybackRequiresUserGesture(false);
 
@@ -93,7 +94,7 @@ jobs:
                               return true;
                           }
                           
-                          // 💬 واٹس ایپ (WhatsApp) ڈائریکٹ اوپنر فیچر
+                          // 💬 واٹس ایپ ڈائریکٹ اوپنر فیچر
                           if (url.startsWith("whatsapp:") || url.contains("api.whatsapp.com") || url.contains("wa.me")) {
                               try {
                                   Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
@@ -122,14 +123,13 @@ jobs:
                       }
                   });
 
-                  // ⏰ ٹائم سلیکٹر کریش فکس اور 📄 پی ڈی ایف/فائل اپلوڈر سپورٹ
+                  // ⏰ ٹائم سلیکٹر کریش فکس اور فائل اپلوڈر سپورٹ
                   myWebView.setWebChromeClient(new WebChromeClient() {
                       @Override
                       public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
                           callback.invoke(origin, true, false);
                       }
 
-                      // یہ فنکشن ٹائم ویل اور فائل مینیجر کو کریش ہونے سے محفوظ رکھتا ہے
                       @Override
                       public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
                           if (uploadMessage != null) {
@@ -147,14 +147,13 @@ jobs:
                       }
                   });
 
-                  // 📥 پی ڈی ایف (PDF) اور دیگر فائلیں خودکار ڈاؤن لوڈ کرنے کا فیچر
+                  // 📥 پی ڈی ایف اور فائلیں خودکار ڈاؤن لوڈ کرنے کا فیچر
                   myWebView.setDownloadListener((downloadUrl, userAgent, contentDisposition, mimeType, contentLength) -> {
                       try {
                           DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
                           request.setMimeType(mimeType);
                           request.setDescription("فائل ڈاؤن لوڈ ہو رہی ہے...");
                           request.setTitle(URLUtil.guessFileName(downloadUrl, contentDisposition, mimeType));
-                          request.allowScanningByMediaScanner();
                           request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
                           request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(downloadUrl, contentDisposition, mimeType));
                           
@@ -164,7 +163,6 @@ jobs:
                               Toast.makeText(MainActivity.this, "ڈاؤن لوڈنگ شروع ہو چکی ہے...", Toast.LENGTH_LONG).show();
                           }
                       } catch (Exception e) {
-                          // اگر ڈائریکٹ ڈاؤن لوڈ کام نہ کرے تو براؤزر لنک پر بھیج دیں
                           Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl));
                           startActivity(intent);
                       }
@@ -174,7 +172,6 @@ jobs:
                   setContentView(myWebView);
               }
 
-              // فائل اور ٹائم سلیکٹر کے نتائج کو بحال رکھنے کا لازمی نظام
               @Override
               protected void onActivityResult(int requestCode, int resultCode, Intent data) {
                   if (requestCode == FILECHOOSER_RESULTCODE) {
