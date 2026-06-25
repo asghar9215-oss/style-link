@@ -1,4 +1,4 @@
-name: Build Android Local Asset App with Auto-Keystore
+name: Build Android Local Asset App From File
 
 on:
   workflow_dispatch:
@@ -11,14 +11,6 @@ on:
         description: 'پیکیج کا نام (com.example.app)'
         required: true
         default: 'com.afuma.stylelink'
-      html_code:
-        description: 'اپنا مکمل ایچ ٹی ایم ایل (HTML) کوڈ یہاں پیسٹ کریں (یہ بڑا بکس ہے)'
-        required: true
-        type: string
-      icon_base64:
-        description: 'ایپ آئیکن کا Base64 کوڈ یہاں پیسٹ کریں (اگر تبدیل کرنا چاہتے ہیں، ورنہ خالی چھوڑ دیں)'
-        required: false
-        type: string
 
 jobs:
   build:
@@ -37,23 +29,17 @@ jobs:
       - name: Initialize Android Project Directory
         run: |
           mkdir -p app/src/main/res/values
-          mkdir -p app/src/main/res/mipmap-hdpi
           mkdir -p app/src/main/assets
           mkdir -p app/src/main/java/com/afuma/stylelink
 
-      # 📝 بڑے کوڈ کو محفوظ طریقے سے بنا کٹے فائل میں سیو کرنے کا طریقہ
-      - name: Save HTML Code safely
+      # 🚀 خودکار طریقہ: گٹ ہب پر موجود index.html فائل کو ایپ کے اثاثوں میں کاپی کرنا
+      - name: Copy HTML File from Repository to Assets
         run: |
-          cat << 'EOF' > app/src/main/assets/index.html
-          ${{ github.event.inputs.html_code }}
-          EOF
-
-      - name: Set App Icon from Base64 or Default
-        run: |
-          if [ ! -z "${{ github.event.inputs.icon_base64 }}" ]; then
-            echo "${{ github.event.inputs.icon_base64 }}" | base64 -d > app/src/main/res/mipmap-hdpi/ic_launcher.png
+          if [ -f "index.html" ]; then
+            cp index.html app/src/main/assets/index.html
           else
-            curl -s "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=512" > app/src/main/res/mipmap-hdpi/ic_launcher.png
+            echo "ERROR: ریپوزٹری کے مین پیج پر index.html فائل نہیں ملی!"
+            exit 1
           fi
 
       - name: Generate Android Native Java Source Code
@@ -99,7 +85,7 @@ jobs:
                   if (myWebView.canGoBack()) {
                       myWebView.goBack();
                   } else {
-                      super.osBackPressed();
+                      super.onBackPressed();
                   }
               }
           }
@@ -107,7 +93,7 @@ jobs:
 
       - name: Generate Android Manifest File
         run: |
-          cat << 'EOF' > app/src/main/AndroidManifest.xml
+          cat << EOF > app/src/main/AndroidManifest.xml
           <manifest xmlns:android="http://schemas.android.com/apk/res/android"
               package="com.afuma.stylelink">
 
@@ -118,7 +104,7 @@ jobs:
               <application
                   android:allowBackup="true"
                   android:label="${{ github.event.inputs.app_name }}"
-                  android:icon="@mipmap/ic_launcher"
+                  android:icon="@android:drawable/sym_def_app_icon"
                   android:theme="@android:style/Theme.NoTitleBar.Fullscreen">
                   
                   <activity android:name=".MainActivity"
