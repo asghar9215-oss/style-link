@@ -31,7 +31,7 @@ jobs:
           mkdir -p app/src/main/res/values
           mkdir -p app/src/main/java/com/afuma/stylelink
 
-      # 🚀 لائیو فکسڈ جاوا کوڈ: کال، لوکیشن، ٹائم پیکر اور پرمیشنز کو سنبھالنے کے لیے
+      # 🚀 فکسڈ جاوا کوڈ: املا کی غلطی (androidx.core.app) کو بالکل درست کر دیا گیا ہے
       - name: Generate Android Native Java Source Code
         run: |
           cat << 'EOF' > app/src/main/java/com/afuma/stylelink/MainActivity.java
@@ -47,7 +47,7 @@ jobs:
           import android.webkit.GeolocationPermissions;
           import android.webkit.WebChromeClient;
           import android.os.Build;
-          import android.core.app.ActivityCompat;
+          import androidx.core.app.ActivityCompat;
           import android.Manifest;
 
           public class MainActivity extends Activity {
@@ -72,7 +72,7 @@ jobs:
                   webSettings.setAllowFileAccess(true);
                   webSettings.setGeolocationEnabled(true);
 
-                  // میڈیا پلے بیک (الارم آڈیو) کو بنا یوزر کلک کے چلنے کی اجازت دینا
+                  // میڈیا پلے بیک (الارم آڈیو) کو چلنے کی اجازت دینا
                   webSettings.setMediaPlaybackRequiresUserGesture(false);
 
                   myWebView.setWebViewClient(new WebViewClient() {
@@ -91,7 +91,6 @@ jobs:
                                   startActivity(intent);
                                   return true;
                               } catch (Exception e) {
-                                  // اگر انٹینٹ یو آر ایل خراب ہو تو سیدھا لنک میپس ایپ میں کھولیں
                                   Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.google.com/maps"));
                                   startActivity(intent);
                                   return true;
