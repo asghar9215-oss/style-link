@@ -12,11 +12,13 @@ on:
         required: true
         default: 'com.afuma.stylelink'
       html_code:
-        description: 'اپنا ایچ ٹی ایم ایل (HTML) کوڈ یہاں پیسٹ کریں'
+        description: 'اپنا مکمل ایچ ٹی ایم ایل (HTML) کوڈ یہاں پیسٹ کریں (یہ بڑا بکس ہے)'
         required: true
+        type: string
       icon_base64:
         description: 'ایپ آئیکن کا Base64 کوڈ یہاں پیسٹ کریں (اگر تبدیل کرنا چاہتے ہیں، ورنہ خالی چھوڑ دیں)'
         required: false
+        type: string
 
 jobs:
   build:
@@ -39,7 +41,8 @@ jobs:
           mkdir -p app/src/main/assets
           mkdir -p app/src/main/java/com/afuma/stylelink
 
-      - name: Save HTML Code into Local Asset File
+      # 📝 بڑے کوڈ کو محفوظ طریقے سے بنا کٹے فائل میں سیو کرنے کا طریقہ
+      - name: Save HTML Code safely
         run: |
           cat << 'EOF' > app/src/main/assets/index.html
           ${{ github.event.inputs.html_code }}
@@ -96,7 +99,7 @@ jobs:
                   if (myWebView.canGoBack()) {
                       myWebView.goBack();
                   } else {
-                      super.onBackPressed();
+                      super.osBackPressed();
                   }
               }
           }
@@ -135,7 +138,6 @@ jobs:
 
       - name: Generate Build Gradle Configuration with Auto-Keystore
         run: |
-          # مین روٹ سیٹنگز فائل بنانا جو پہلے غائب تھی
           cat << 'EOF' > settings.gradle
           pluginManagement {
               repositories {
