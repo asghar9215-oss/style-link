@@ -1,4 +1,4 @@
-name: Build Android Webview App From GitHub Pages
+name: Build Android Master Webview App
 
 on:
   workflow_dispatch:
@@ -31,7 +31,7 @@ jobs:
           mkdir -p app/src/main/res/values
           mkdir -p app/src/main/java/com/afuma/stylelink
 
-      # 🚀 فائنل جاوا کوڈ: کسی بھی بیرونی لائبریری کے بغیر ڈائریکٹ اینڈرائیڈ کوڈ لاک کر دیا گیا ہے
+      # 🚀 ماسٹر جاوا کوڈ: ٹائم کریش فکس، واٹس ایپ ڈائریکٹ اوپنر، اور پی ڈی ایف/فائل ڈاؤنلوڈ سپورٹ کے ساتھ
       - name: Generate Android Native Java Source Code
         run: |
           cat << 'EOF' > app/src/main/java/com/afuma/stylelink/MainActivity.java
@@ -46,20 +46,28 @@ jobs:
           import android.webkit.WebViewClient;
           import android.webkit.GeolocationPermissions;
           import android.webkit.WebChromeClient;
+          import android.webkit.ValueCallback;
           import android.os.Build;
+          import android.os.Environment;
+          import android.app.DownloadManager;
+          import android.content.Context;
+          import android.widget.Toast;
 
           public class MainActivity extends Activity {
               private WebView myWebView;
+              private ValueCallback<Uri[]> uploadMessage;
+              private final static int FILECHOOSER_RESULTCODE = 1;
 
               @Override
               protected void onCreate(Bundle savedInstanceState) {
                   super.onCreate(savedInstanceState);
                   
-                  // 🗺️ لوکیشن کی پرمیشنز بغیر کسی androidx لائبریری کے ڈائریکٹ اینڈرائیڈ سسٹم سے مانگنا
+                  // لوکیشن کی بنیادی پرمیشنز
                   if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                       requestPermissions(new String[]{
                               "android.permission.ACCESS_FINE_LOCATION",
-                              "android.permission.ACCESS_COARSE_LOCATION"
+                              "android.permission.ACCESS_COARSE_LOCATION",
+                              "android.permission.WRITE_EXTERNAL_STORAGE"
                       }, 1);
                   }
 
@@ -69,8 +77,10 @@ jobs:
                   webSettings.setDomStorageEnabled(true);
                   webSettings.setAllowFileAccess(true);
                   webSettings.setGeolocationEnabled(true);
-
-                  // 🔊 الارم آڈیو آٹو پلے فکس
+                  webSettings.setDatabaseEnabled(true);
+                  
+                  // ٹائم پیکر اور ایچ ٹی ایم ایل ان پٹ فارمز کو کریش سے بچانے کی سیٹنگز
+                  webSettings.setAllowContentAccess(true);
                   webSettings.setMediaPlaybackRequiresUserGesture(false);
 
                   myWebView.setWebViewClient(new WebViewClient() {
@@ -82,6 +92,20 @@ jobs:
                               startActivity(intent);
                               return true;
                           }
+                          
+                          // 💬 واٹس ایپ (WhatsApp) ڈائریکٹ اوپنر فیچر
+                          if (url.startsWith("whatsapp:") || url.contains("api.whatsapp.com") || url.contains("wa.me")) {
+                              try {
+                                  Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                                  intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                  startActivity(intent);
+                                  return true;
+                              } catch (Exception e) {
+                                  Toast.makeText(MainActivity.this, "موبائل میں واٹس ایپ انسٹال نہیں ہے!", Toast.LENGTH_SHORT).show();
+                                  return true;
+                              }
+                          }
+
                           // 🗺️ لوکیشن اور گوگل میپس فکس
                           if (url.startsWith("http://googleusercontent.com/maps.google.com/") || url.contains("maps") || url.startsWith("intent:")) {
                               try {
@@ -98,15 +122,66 @@ jobs:
                       }
                   });
 
+                  // ⏰ ٹائم سلیکٹر کریش فکس اور 📄 پی ڈی ایف/فائل اپلوڈر سپورٹ
                   myWebView.setWebChromeClient(new WebChromeClient() {
                       @Override
                       public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback callback) {
                           callback.invoke(origin, true, false);
                       }
+
+                      // یہ فنکشن ٹائم ویل اور فائل مینیجر کو کریش ہونے سے محفوظ رکھتا ہے
+                      @Override
+                      public boolean onShowFileChooser(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
+                          if (uploadMessage != null) {
+                              uploadMessage.onReceiveValue(null);
+                          }
+                          uploadMessage = filePathCallback;
+                          Intent intent = fileChooserParams.createIntent();
+                          try {
+                              startActivityForResult(intent, FILECHOOSER_RESULTCODE);
+                          } catch (Exception e) {
+                              uploadMessage = null;
+                              return false;
+                          }
+                          return true;
+                      }
+                  });
+
+                  // 📥 پی ڈی ایف (PDF) اور دیگر فائلیں خودکار ڈاؤن لوڈ کرنے کا فیچر
+                  myWebView.setDownloadListener((downloadUrl, userAgent, contentDisposition, mimeType, contentLength) -> {
+                      try {
+                          DownloadManager.Request request = new DownloadManager.Request(Uri.parse(downloadUrl));
+                          request.setMimeType(mimeType);
+                          request.setDescription("فائل ڈاؤن لوڈ ہو رہی ہے...");
+                          request.setTitle(URLUtil.guessFileName(downloadUrl, contentDisposition, mimeType));
+                          request.allowScanningByMediaScanner();
+                          request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+                          request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, URLUtil.guessFileName(downloadUrl, contentDisposition, mimeType));
+                          
+                          DownloadManager dm = (DownloadManager) getSystemService(Context.DOWNLOAD_SERVICE);
+                          if (dm != null) {
+                              dm.enqueue(request);
+                              Toast.makeText(MainActivity.this, "ڈاؤن لوڈنگ شروع ہو چکی ہے...", Toast.LENGTH_LONG).show();
+                          }
+                      } catch (Exception e) {
+                          // اگر ڈائریکٹ ڈاؤن لوڈ کام نہ کرے تو براؤزر لنک پر بھیج دیں
+                          Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(downloadUrl));
+                          startActivity(intent);
+                      }
                   });
 
                   myWebView.loadUrl("https://asghar9215-oss.github.io/style-link/");
                   setContentView(myWebView);
+              }
+
+              // فائل اور ٹائم سلیکٹر کے نتائج کو بحال رکھنے کا لازمی نظام
+              @Override
+              protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+                  if (requestCode == FILECHOOSER_RESULTCODE) {
+                      if (uploadMessage == null) return;
+                      uploadMessage.onReceiveValue(WebChromeClient.FileChooserParams.parseResult(resultCode, data));
+                      uploadMessage = null;
+                  }
               }
 
               @Override
@@ -130,6 +205,8 @@ jobs:
               <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
               <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
               <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+              <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+              <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
               <application
                   android:allowBackup="true"
@@ -139,7 +216,8 @@ jobs:
                   android:usesCleartextTraffic="true">
                   
                   <activity android:name=".MainActivity"
-                      android:exported="true">
+                      android:exported="true"
+                      android:configChanges="orientation|screenSize|keyboardHidden">
                       <intent-filter>
                           <action android:name="android.intent.action.MAIN" />
                           <category android:name="android.intent.category.LAUNCHER" />
@@ -172,7 +250,7 @@ jobs:
               namespace 'com.afuma.stylelink'
               compileSdk 34
               signingConfigs { release { storeFile file("autogenerated.keystore"); storePassword "StyleLinkPass123"; keyAlias "stylelink"; keyPassword "StyleLinkPass123" } }
-              defaultConfig { applicationId "${{ github.event.inputs.package_name }}"; minSdk 24; targetSdk 34; versionCode 10003; versionName "1.0.3" }
+              defaultConfig { applicationId "${{ github.event.inputs.package_name }}"; minSdk 24; targetSdk 34; versionCode 10004; versionName "1.0.4" }
               buildTypes { release { minifyEnabled false; signingConfig signingConfigs.release } }
           }
           EOF
@@ -187,7 +265,7 @@ jobs:
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: StyleLinkPro_Final_Fixed_Files
+          name: StyleLinkPro_Master_Files
           path: |
             app/build/outputs/bundle/release/app-release.aab
             app/build/outputs/apk/release/app-release.apk
