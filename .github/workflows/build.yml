@@ -137,11 +137,19 @@ jobs:
         run: |
           cat << 'EOF' > build.gradle
           buildscript {
-              repositories { google(); mavenCentral() }
-              dependencies { classpath 'com.android.tools.build:gradle:8.2.2' }
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+              dependencies {
+                  classpath 'com.android.tools.build:gradle:8.2.2'
+              }
           }
           allprojects {
-              repositories { google(); mavenCentral() }
+              repositories {
+                  google()
+                  mavenCentral()
+              }
           }
           EOF
 
@@ -194,4 +202,3 @@ jobs:
         with:
           name: StyleLinkPro_AutoSigned_APK
           path: app/build/outputs/apk/release/app-release.apk
-
