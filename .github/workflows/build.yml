@@ -135,6 +135,26 @@ jobs:
 
       - name: Generate Build Gradle Configuration with Auto-Keystore
         run: |
+          # مین روٹ سیٹنگز فائل بنانا جو پہلے غائب تھی
+          cat << 'EOF' > settings.gradle
+          pluginManagement {
+              repositories {
+                  google()
+                  mavenCentral()
+                  gradlePluginPortal()
+              }
+          }
+          dependencyResolutionManagement {
+              repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+              repositories {
+                  google()
+                  mavenCentral()
+              }
+          }
+          rootProject.name = "style-link"
+          include ':app'
+          EOF
+
           cat << 'EOF' > build.gradle
           buildscript {
               repositories {
@@ -143,12 +163,6 @@ jobs:
               }
               dependencies {
                   classpath 'com.android.tools.build:gradle:8.2.2'
-              }
-          }
-          allprojects {
-              repositories {
-                  google()
-                  mavenCentral()
               }
           }
           EOF
@@ -186,12 +200,11 @@ jobs:
           EOF
           echo "org.gradle.jvmargs=-Xmx2048m" > gradle.properties
 
-      - name: Build Official Signed AAB and APK Files (Clean Cache Mode)
+      - name: Build Official Signed AAB and APK Files
         run: |
-          # پرانے کیشے کے ٹکراؤ کو ختم کرنے کے لیے گرڈل کو نئی ڈائریکٹری دینا
           export GRADLE_USER_HOME=$HOME/.gradle_clean
           gradle wrapper --gradle-version 8.5
-          ./gradlew bundleRelease assembleRelease --no-build-cache
+          ./gradlew :app:bundleRelease :app:assembleRelease --no-build-cache
 
       - name: Upload StyleLinkPro Official Signed AAB File
         uses: actions/upload-artifact@v4
