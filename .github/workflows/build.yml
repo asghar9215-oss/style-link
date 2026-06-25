@@ -45,7 +45,6 @@ jobs:
           ${{ github.event.inputs.html_code }}
           EOF
 
-      # 🖼️ اگر یوزر نے بیس 64 کوڈ دیا ہو تو تصویر بنا کر آئیکن سیٹ کرنا، ورنہ ڈیفالٹ تصویر رکھنا
       - name: Set App Icon from Base64 or Default
         run: |
           if [ ! -z "${{ github.event.inputs.icon_base64 }}" ]; then
@@ -161,12 +160,11 @@ jobs:
           EOF
           echo "org.gradle.jvmargs=-Xmx2048m" > gradle.properties
 
-      运行 Official Build Workflow:
+      - name: Build Official AAB and APK Files
         run: |
           gradle wrapper --gradle-version 8.5
           ./gradlew bundleRelease assembleRelease
 
-      # 📥 دونوں فائلیں ایک ساتھ اپلوڈ کرنا (AAB اور APK)
       - name: Upload StyleLinkPro Official AAB File
         uses: actions/upload-artifact@v4
         with:
