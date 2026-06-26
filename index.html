@@ -24,29 +24,42 @@
             font-family: 'Poppins', sans-serif;
         }
 
+        /* Responsive Body Layout */
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
-            display: flex;
-            justify-content: center;
-            align-items: center;
             min-height: 100vh;
             top: 0px !important;
             position: static !important;
         }
 
-        /* Mobile Container Mockup */
+        /* Default Full Mobile Screen Layout (100% Width & Height) */
         .app-container {
-            width: 100%;
-            max-width: 450px;
-            height: 92vh;
+            width: 100vw;
+            height: 100vh;
             background-color: #111;
-            border: 2px solid var(--primary-color);
-            border-radius: 20px;
+            border: none;
+            border-radius: 0;
             display: flex;
             flex-direction: column;
             overflow: hidden;
             position: relative;
+        }
+
+        /* Standard PC & Large Screen Devices Mockup styling */
+        @media (min-width: 480px) {
+            body {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .app-container {
+                width: 100%;
+                max-width: 450px;
+                height: 92vh;
+                border: 2px solid var(--primary-color);
+                border-radius: 20px;
+            }
         }
 
         /* Top Header Component */
@@ -998,6 +1011,22 @@
 
         // Keep current screen memorized in localStorage to prevent loss on refresh
         localStorage.setItem('currentScreen', screenId);
+
+        // Populate and lock payment verification inputs with up-to-date data dynamically
+        if (screenId === 'payment') {
+            const activeUser = auth.currentUser;
+            if (activeUser) {
+                document.getElementById('pay-email').value = activeUser.email || "";
+                onValue(ref(db, `users/${activeUser.uid}`), (snap) => {
+                    const data = snap.val();
+                    if (data) {
+                        document.getElementById('pay-name').value = data.name || "";
+                        document.getElementById('pay-phone').value = data.phone || "";
+                        document.getElementById('pay-email').value = data.email || activeUser.email || "";
+                    }
+                }, { onlyOnce: true });
+            }
+        }
 
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
         const targetScreen = document.getElementById(`screen-${screenId}`);
