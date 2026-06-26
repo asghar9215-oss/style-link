@@ -100,20 +100,45 @@
             right: 15px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 24px;
             color: var(--primary-color);
             cursor: pointer;
             display: none;
+            align-items: center;
+            gap: 5px;
+            background: rgba(219, 176, 74, 0.15);
+            padding: 4px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(219, 176, 74, 0.3);
         }
+        .barber-noti-bell i {
+            font-size: 18px;
+        }
+        .barber-noti-bell span {
+            font-size: 11px;
+            font-weight: bold;
+        }
+        
         .barber-complaint-btn {
             position: absolute;
             left: 15px;
             top: 50%;
             transform: translateY(-50%);
-            font-size: 24px;
             color: var(--primary-color);
             cursor: pointer;
             display: none;
+            align-items: center;
+            gap: 5px;
+            background: rgba(219, 176, 74, 0.15);
+            padding: 4px 8px;
+            border-radius: 20px;
+            border: 1px solid rgba(219, 176, 74, 0.3);
+        }
+        .barber-complaint-btn i {
+            font-size: 18px;
+        }
+        .barber-complaint-btn span {
+            font-size: 11px;
+            font-weight: bold;
         }
 
         /* Language Buttons Style */
@@ -437,8 +462,17 @@
             <span id="header-time">12:40 AM</span>
         </div>
         <div class="logo-area">
-            <i class="fa-solid fa-headset barber-complaint-btn" id="header-comp-btn" onclick="navigate('complaint')"></i>
-            <i class="fa-solid fa-bell barber-noti-bell" id="header-noti-btn" onclick="navigate('my-bookings')"></i>
+            <!-- Symmetrical Complaint Center header link with icon and text -->
+            <div class="barber-complaint-btn" id="header-comp-btn" onclick="navigate('complaint')">
+                <i class="fa-solid fa-headset"></i>
+                <span>کمپلین سینٹر</span>
+            </div>
+            
+            <!-- Beautiful Bell Notification container with Text Label -->
+            <div class="barber-noti-bell" id="header-noti-btn" onclick="navigate('my-bookings')">
+                <span>میری بکنگ</span>
+                <i class="fa-solid fa-bell"></i>
+            </div>
             
             <div class="logo-circle">
                 <i class="fa-solid fa-scissors"></i>
@@ -513,6 +547,10 @@
         </div>
 
         <div id="screen-home" class="screen">
+            <!-- Customer Location Status Banner -->
+            <div id="location-status-banner" style="background: rgba(219, 176, 74, 0.1); border: 1px solid var(--primary-color); border-radius: 8px; padding: 8px; font-size: 11px; text-align: center; margin-bottom: 12px; display: none;">
+                <i class="fa-solid fa-location-crosshairs"></i> آپ کی لوکیشن حاصل کی جا رہی ہے تاکہ قریبی دکانیں دکھائی جا سکیں...
+            </div>
             <div id="ads-list-container">
                 <p style="text-align:center; color:#666; margin-top:20px;">کوئی اشتہار دستیاب نہیں ہے</p>
             </div>
@@ -682,6 +720,69 @@
 </div>
 
 <script type="text/javascript">
+    // Currency Global Configurations
+    window.currentCurrency = "PKR";
+    window.activeLanguage = "ur"; 
+    window.localDetectedCurrency = "USD"; 
+    window.rawActiveBookingsSnapshot = null; 
+
+    // Live Approximate Currency Converter rates based on PKR
+    window.convertPrice = function(pkrAmount) {
+        if (!pkrAmount) return `0 ${window.currentCurrency}`;
+        let amt = parseFloat(pkrAmount);
+        let converted = amt;
+        
+        if (window.currentCurrency === "SAR") {
+            converted = amt / 74.0;
+        } else if (window.currentCurrency === "INR") {
+            converted = amt / 3.3;
+        } else if (window.currentCurrency === "USD") {
+            converted = amt / 278.0;
+        } else if (window.currentCurrency === "AED") {
+            converted = amt / 75.0;
+        } else if (window.currentCurrency !== "PKR") {
+            // Dynamically convert via USD rate for other detected currencies
+            converted = amt / 278.0;
+        }
+
+        const displayValue = converted % 1 === 0 ? converted : converted.toFixed(1);
+        return `${displayValue} ${window.currentCurrency}`;
+    };
+
+    // Detect visitor dynamic country location based currency on Startup
+    fetch('https://ipapi.co/json/')
+        .then(res => res.json())
+        .then(data => {
+            if (data && data.currency) {
+                window.localDetectedCurrency = data.currency;
+                if (window.activeLanguage === 'en') {
+                    window.currentCurrency = data.currency;
+                    if (typeof window.triggerCurrencyUIRefresh === 'function') {
+                        window.triggerCurrencyUIRefresh();
+                    }
+                }
+            }
+        })
+        .catch(err => console.log("Country Currency Detection bypassed: ", err.message));
+
+    // Update global currencies state based on active languages
+    window.updateCurrencyByLanguage = function(langCode) {
+        window.activeLanguage = langCode;
+        if (langCode === 'ur') {
+            window.currentCurrency = "PKR";
+        } else if (langCode === 'ar') {
+            window.currentCurrency = "SAR";
+        } else if (langCode === 'hi') {
+            window.currentCurrency = "INR";
+        } else if (langCode === 'en') {
+            window.currentCurrency = window.localDetectedCurrency || "USD";
+        }
+        
+        if (typeof window.triggerCurrencyUIRefresh === 'function') {
+            window.triggerCurrencyUIRefresh();
+        }
+    };
+
     function googleTranslateElementInit() {
         new google.translate.TranslateElement({
             pageLanguage: 'ur',
@@ -696,6 +797,9 @@
         
         const btn = Array.from(document.querySelectorAll('.lang-btn')).find(b => b.getAttribute('onclick').includes(langCode));
         if(btn) btn.classList.add('active');
+
+        // Fire dynamic currency conversion flow
+        window.updateCurrencyByLanguage(langCode);
 
         const selectEl = document.querySelector('select.goog-te-combo');
         if (selectEl) {
@@ -772,10 +876,21 @@
     let billingStatus = "none"; 
     let userProfileCached = {}; 
 
+    // Geolocation Global States
+    let customerCoords = null; 
+    let cachedAdsSnapshot = null;
+
     let alarmAudio = new Audio('https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg');
     alarmAudio.loop = true;
 
     const placeholderShopImg = "https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=400";
+
+    // Request System Notification Permission on Launch for background notification system
+    if ("Notification" in window) {
+        if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+            Notification.requestPermission();
+        }
+    }
 
     // Standard Registration of Inline Blob Service Worker for Closed-App background Push notifications
     if ('serviceWorker' in navigator) {
@@ -786,7 +901,7 @@
                     self.registration.showNotification(data.title, {
                         body: data.body,
                         icon: 'https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=100',
-                        vibrate: [200, 100, 200]
+                        vibrate: [300, 100, 300]
                     })
                 );
             });
@@ -805,6 +920,72 @@
         document.getElementById('header-date').innerText = now.toLocaleDateString();
         document.getElementById('header-time').innerText = now.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
     }, 1000);
+
+    // Haversine Distance Formula in Kilometers
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Radius of the Earth in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = 
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c; 
+    }
+
+    // Parse location coordinates safely
+    function parseCoordinates(coordString) {
+        if (!coordString) return null;
+        const parts = coordString.split(',');
+        if (parts.length === 2) {
+            const lat = parseFloat(parts[0].trim());
+            const lon = parseFloat(parts[1].trim());
+            if (!isNaN(lat) && !isNaN(lon)) {
+                return { lat, lon };
+            }
+        }
+        return null;
+    }
+
+    // Obtain Customer Geolocation
+    function fetchCustomerLocation() {
+        const banner = document.getElementById('location-status-banner');
+        if (currentUserType === 'customer') {
+            banner.style.display = 'block';
+        }
+        
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    customerCoords = {
+                        lat: pos.coords.latitude,
+                        lon: pos.coords.longitude
+                    };
+                    banner.style.display = 'none';
+                    if (cachedAdsSnapshot) {
+                        renderAdsList(cachedAdsSnapshot);
+                    }
+                },
+                (error) => {
+                    console.log("GPS access denied, utilizing fallback coords.");
+                    // Fallback to Lahore general coords
+                    customerCoords = { lat: 31.5204, lon: 74.3587 };
+                    banner.style.display = 'none';
+                    if (cachedAdsSnapshot) {
+                        renderAdsList(cachedAdsSnapshot);
+                    }
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        } else {
+            customerCoords = { lat: 31.5204, lon: 74.3587 };
+            banner.style.display = 'none';
+            if (cachedAdsSnapshot) {
+                renderAdsList(cachedAdsSnapshot);
+            }
+        }
+    }
 
     // Dynamic Navigation Routing Guard Checks with LocalStorage State Storage
     window.navigate = function(screenId) {
@@ -840,9 +1021,9 @@
                 <div class="nav-item" onclick="navigate('my-ads')"><i class="fa-solid fa-rectangle-ad"></i><span>مائے ایڈ</span></div>
                 <div class="nav-item" onclick="navigate('profile')"><i class="fa-solid fa-user"></i><span>پروفائل</span></div>
             `;
-            // Symmetrical Header sidelinks display for Barber
-            document.getElementById('header-noti-btn').style.display = 'block';
-            document.getElementById('header-comp-btn').style.display = 'block';
+            // Symmetrical Header sidelinks display for Barber - displaying notifications bell and complaint center as flex wrappers
+            document.getElementById('header-noti-btn').style.display = 'flex';
+            document.getElementById('header-comp-btn').style.display = 'flex';
             
             // Set Dynamic Center Role Badge
             roleBadge.innerText = "دکاندار پیج";
@@ -894,6 +1075,9 @@
                         document.getElementById('pay-email').value = data.email || "";
                     }
 
+                    // Obtain geolocation details
+                    fetchCustomerLocation();
+
                     // Activate live data listeners once the role is established
                     listenToDataStreams();
 
@@ -901,6 +1085,7 @@
                     const restoredScreen = localStorage.getItem('currentScreen') || 'home';
                     navigate(restoredScreen);
                 } else {
+                    fetchCustomerLocation();
                     listenToDataStreams();
                     const restoredScreen = localStorage.getItem('currentScreen') || 'home';
                     navigate(restoredScreen);
@@ -989,6 +1174,7 @@
                         createdAt: Date.now()
                     }).then(() => {
                         buildNavbar();
+                        fetchCustomerLocation();
                         navigate('home');
                         listenToDataStreams();
                     });
@@ -1011,6 +1197,7 @@
                     });
 
                     buildNavbar();
+                    fetchCustomerLocation();
                     navigate('home');
                     listenToDataStreams();
                 })
@@ -1158,6 +1345,258 @@
         }
     };
 
+    // Sub-routine to render ads list to screen with Geofencing constraints (3km limit)
+    function renderAdsList(data) {
+        const homeContainer = document.getElementById('ads-list-container');
+        const myAdsContainer = document.getElementById('my-ads-container');
+        
+        homeContainer.innerHTML = "";
+        myAdsContainer.innerHTML = "";
+        
+        let myAdCount = 0;
+        let homeAdCount = 0;
+
+        for(let key in data) {
+            const item = data[key];
+            if (!item) continue; 
+
+            const isExpired = item.expiresAt && (Date.now() > item.expiresAt);
+            if (isExpired) {
+                continue; 
+            }
+
+            // Geofencing checks for Customer Homepage View
+            let distance = null;
+            let withinRange = true;
+
+            const itemCoords = parseCoordinates(item.location);
+            const activeCustomerCoords = customerCoords || { lat: 31.5204, lon: 74.3587 }; // Use default as fallback
+
+            if (itemCoords) {
+                distance = calculateDistance(
+                    activeCustomerCoords.lat,
+                    activeCustomerCoords.lon,
+                    itemCoords.lat,
+                    itemCoords.lon
+                );
+                // Filtering constraint: 3 kilometers
+                if (distance > 3.0) {
+                    withinRange = false;
+                }
+            }
+
+            const displayImage = item.image || placeholderShopImg;
+            const timeRemainingStr = item.expiresAt ? getRemainingTimeText(item.expiresAt) : "لامحدود";
+            
+            // Generate dynamic distance display markup
+            const distanceMarkup = distance !== null 
+                ? `<p style="font-size:12px; color:var(--primary-color); font-weight:bold; margin-top:2px;"><i class="fa-solid fa-location-arrow"></i> فاصلہ: ${distance.toFixed(2)} کلومیٹر</p>` 
+                : '';
+
+            const adHtml = `
+                <div class="ad-info">
+                    <img src="${displayImage}" class="ad-img" alt="Shop Photo">
+                    <div>
+                        <h4 style="color:var(--primary-color);">${item.shopName || ''}</h4>
+                        <p style="font-size:12px; color:#bbb;">نام: ${item.barberName || ''} | فون: ${item.phone || ''}</p>
+                        ${distanceMarkup}
+                        <div class="rating"><i class="fa-solid fa-star"></i> ${item.rating || 5}.0</div>
+                        <span class="expiry-badge"><i class="fa-regular fa-clock"></i> ${timeRemainingStr}</span>
+                    </div>
+                </div>
+                <i class="fa-solid fa-chevron-left" style="color:var(--primary-color); margin-right: auto;"></i>
+            `;
+
+            // Filter for Customer's Home Page: Only show within 3km limit
+            if (currentUserType !== 'customer' || withinRange) {
+                const divHome = document.createElement('div');
+                divHome.className = "ad-strip";
+                divHome.id = `ad-${key}`;
+                divHome.innerHTML = adHtml;
+                divHome.onclick = () => window.openBookingPage(key, item);
+                homeContainer.appendChild(divHome);
+                homeAdCount++;
+            }
+
+            if(item.barberId === currentUserId) {
+                myAdCount++;
+                
+                const divMy = document.createElement('div');
+                divMy.className = "ad-strip-container";
+                divMy.style.cssText = "background: var(--card-bg); border-radius: 10px; padding: 12px; margin-bottom: 12px; border-left: 4px solid var(--primary-color);";
+                
+                const innerStrip = document.createElement('div');
+                innerStrip.className = "ad-strip";
+                innerStrip.style.cssText = "border-left: none; background: transparent; padding: 0; margin: 0;";
+                innerStrip.innerHTML = adHtml;
+                divMy.appendChild(innerStrip);
+
+                const delBtn = document.createElement('button');
+                delBtn.className = "btn btn-gray";
+                delBtn.style.cssText = "background:#cc0000; font-size:12px; padding:8px; margin-top:10px; width:100%; border:none; border-radius:8px; cursor:pointer;";
+                delBtn.innerHTML = '<i class="fa-solid fa-trash"></i> ایڈ ڈیلیٹ کریں';
+                delBtn.onclick = function(e) {
+                    e.stopPropagation();
+                    window.deleteAd(key);
+                };
+
+                divMy.appendChild(delBtn);
+                myAdsContainer.appendChild(divMy);
+            }
+        }
+
+        if (homeAdCount === 0) {
+            homeContainer.innerHTML = `<p style="text-align:center; color:#666; margin-top:20px;">3 کلومیٹر کے دائرے میں کوئی اشتہار دستیاب نہیں ہے</p>`;
+        }
+        if (myAdCount === 0) {
+            myAdsContainer.innerHTML = `<p style="text-align:center; color:#666; margin-top:20px;">آپ کا کوئی اشتہار موجود نہیں ہے</p>`;
+        }
+
+        const billingIndicator = document.getElementById('billing-indicator');
+        const adCreateFormWrapper = document.getElementById('ad-create-form-wrapper');
+
+        document.getElementById('lbl-myads-head').innerText = `میرے اشتہارات (حد: ${adLimit})`;
+
+        if (myAdCount >= adLimit) {
+            document.getElementById('lbl-add-head').innerText = `اشتہار کی حد مکمل ہو چکی ہے۔ (حد: ${adLimit})`;
+            adCreateFormWrapper.style.display = "none";
+            billingIndicator.style.display = "block";
+
+            if (billingStatus === "pending") {
+                billingIndicator.innerText = "آپ کی پیمنٹ کی تصدیق کا عمل جاری ہے۔ جیسا کہ ایڈمن تصدیق کرے گا، آپ کے اکاؤنٹ کی حد بڑھا دی جائے گی۔";
+                billingIndicator.style.pointerEvents = "none";
+            } else if (billingStatus === "approved") {
+                billingIndicator.style.display = "none";
+                adCreateFormWrapper.style.display = "block";
+                document.getElementById('lbl-add-head').innerText = `نیا اشتہار لگائیں (حد: 5)`;
+            } else {
+                billingIndicator.innerHTML = `<i class="fa-solid fa-wallet"></i> اشتہار کی حد ختم! 5 اشتہارات کے لیے یہاں کلک کر کے پے کریں۔`;
+                billingIndicator.style.pointerEvents = "auto";
+            }
+        } else {
+            adCreateFormWrapper.style.display = "block";
+            billingIndicator.style.display = "none";
+            document.getElementById('lbl-add-head').innerText = "نیا اشتہار لگائیں";
+        }
+    }
+
+    // Dynamic UI Currencies Refresh trigger
+    window.triggerCurrencyUIRefresh = function() {
+        if (window.rawActiveBookingsSnapshot) {
+            renderBookingsUI(window.rawActiveBookingsSnapshot);
+        }
+        if (selectedAdForBooking) {
+            // Re-render check box items on current active Booking Details screen
+            const srvContainer = document.getElementById('booking-services-list');
+            if (srvContainer) {
+                srvContainer.innerHTML = "";
+                for(let sName in selectedAdForBooking.services) {
+                    srvContainer.innerHTML += `
+                        <div class="checkbox-container">
+                            <label><input type="checkbox" class="srv-chk" value="${selectedAdForBooking.services[sName]}" onchange="window.calculateBookingTotal()"> ${sName}</label>
+                            <span>${window.convertPrice(selectedAdForBooking.services[sName])}</span>
+                        </div>
+                    `;
+                }
+                window.calculateBookingTotal();
+            }
+        }
+    };
+
+    function renderBookingsUI(data) {
+        const container = document.getElementById('my-bookings-container');
+        container.innerHTML = "";
+
+        if (data) {
+            for(let key in data) {
+                const b = data[key];
+                if (!b) continue;
+
+                if(b.customerId === currentUserId || b.barberId === currentUserId) {
+                    
+                    let cardBorderColor = "border-right: 4px solid var(--primary-color);"; 
+                    let statusLabelColor = "color: yellow;";
+                    
+                    if (b.status === "تصدیق شدہ") {
+                        cardBorderColor = "border-right: 4px solid #28a745;"; 
+                        statusLabelColor = "color: #28a745; font-weight: bold;";
+                    } else if (b.status === "منسوخ") {
+                        cardBorderColor = "border-right: 4px solid #dc3545;"; 
+                        statusLabelColor = "color: #dc3545; font-weight: bold;";
+                    }
+
+                    let servicesDetailsHtml = "";
+                    if (b.services && Array.isArray(b.services)) {
+                        servicesDetailsHtml = `<div style="font-size:11px; color:#aaa; margin:5px 0;">خدمات: ` + 
+                            b.services.map(s => `${s.name} (${window.convertPrice(s.price)})`).join(', ') + `</div>`;
+                    }
+
+                    // Parse coordinates and build clean international phone format for WhatsApp API
+                    const rawPhone = b.barberPhone || '';
+                    let formattedWhatsAppPhone = rawPhone.replace(/[^0-9]/g, '');
+                    if (formattedWhatsAppPhone.startsWith('0')) {
+                        formattedWhatsAppPhone = '92' + formattedWhatsAppPhone.slice(1);
+                    }
+
+                    // Rich Booking Card UI with converted Currency values
+                    const bHtml = `
+                        <div style="background:var(--card-bg); padding:15px; border-radius:12px; margin-bottom:15px; ${cardBorderColor}; display: flex; flex-direction: column; gap: 8px;">
+                            <div style="display: flex; gap: 12px; align-items: center; border-bottom: 1px solid #333; padding-bottom: 10px;">
+                                <img src="${b.shopImage || placeholderShopImg}" style="width: 65px; height: 65px; border-radius: 8px; object-fit: cover; border: 1px solid var(--primary-color);">
+                                <div style="flex: 1; text-align: right;">
+                                    <h4 style="color:var(--primary-color); font-size:16px;">دکان: ${b.shopName}</h4>
+                                    <p style="font-size:12px; color:#ccc;">تاریخ: ${b.date} | وقت: ${b.time}</p>
+                                    <p style="font-size:12px; color:#bbb;"><i class="fa-solid fa-phone" style="font-size: 10px;"></i> فون نمبر: ${rawPhone || 'دستیاب نہیں'}</p>
+                                </div>
+                            </div>
+                            
+                            ${servicesDetailsHtml}
+                            <p style="color:var(--primary-color); font-weight:bold; font-size: 15px;">رقم: ${window.convertPrice(b.amount)}</p>
+                            <p style="font-size:12px; color:#aaa;">اسٹیٹس: <span style="${statusLabelColor}">${b.status}</span></p>
+                            
+                            <!-- Integrated Action Utilities -->
+                            <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px;">
+                                <a href="https://wa.me/${formattedWhatsAppPhone}" target="_blank" class="btn" style="background:#25D366; color:#fff; font-size:11px; padding:6px 12px; margin-bottom: 0; flex: 1; text-decoration: none; display: flex; justify-content: center; align-items: center; gap: 4px; border-radius: 6px;">
+                                    <i class="fa-brands fa-whatsapp"></i> واٹس ایپ
+                                </a>
+                                <a href="https://maps.google.com/?q=${b.location || '31.5204,74.3587'}" target="_blank" class="btn btn-gray" style="font-size:11px; padding:6px 12px; margin-bottom: 0; flex: 1; text-decoration: none; display: flex; justify-content: center; align-items: center; gap: 4px; border-radius: 6px;">
+                                    <i class="fa-solid fa-map-location-dot"></i> لوکیشن
+                                </a>
+                                <a href="tel:${rawPhone}" class="btn btn-gray" style="font-size:11px; padding:6px 12px; margin-bottom: 0; flex: 1; text-decoration: none; display: flex; justify-content: center; align-items: center; gap: 4px; border-radius: 6px;">
+                                    <i class="fa-solid fa-phone"></i> کال کریں
+                                </a>
+                            </div>
+
+                            <div style="margin-top:8px; display:flex; gap:5px; border-top: 1px solid #333; padding-top: 10px;">
+                                ${currentUserType === 'barber' && b.status === 'پینڈنگ' ? `<button class="btn btn-gold" style="padding:5px; font-size:11px; margin-bottom: 0; flex: 1; border-radius: 6px;" onclick="window.updateBookingStatus('${key}','تصدیق شدہ')">کنفرم کریں</button>` : ''}
+                                <button class="btn btn-gray" style="background:red; padding:5px; font-size:11px; margin-bottom: 0; flex: 1; border-radius: 6px;" onclick="window.updateBookingStatus('${key}','منسوخ')">کینسل کریں</button>
+                                <button class="btn btn-gray" style="background:#555; padding:5px; font-size:11px; margin-bottom: 0; flex: 1; border-radius: 6px;" onclick="window.deleteBooking('${key}')"><i class="fa-solid fa-trash"></i> ڈیلیٹ کریں</button>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += bHtml;
+
+                    // Background-safe notification trigger and local alarm sequence
+                    if(currentUserType === 'barber' && b.barberId === currentUserId && b.status === 'پینڈنگ') {
+                        // Trigger system notification if browser/app is in background/minimized
+                        if (Notification.permission === 'granted' && document.hidden) {
+                            new Notification(`نئی بکنگ: ${b.shopName}`, {
+                                body: `رقم: ${window.convertPrice(b.amount)} - کسٹمر انتظار میں ہے!`,
+                                icon: b.shopImage || placeholderShopImg,
+                                vibrate: [300, 100, 300, 100, 300],
+                                tag: key
+                            });
+                        }
+                        
+                        if (!alarmInterval) {
+                            triggerSystemAlarm(b);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     function listenToDataStreams() {
         let previousStatus = null;
 
@@ -1190,161 +1629,14 @@
 
         onValue(ref(db, 'barber_ads'), (snapshot) => {
             const data = snapshot.val() || {}; 
-            const homeContainer = document.getElementById('ads-list-container');
-            const myAdsContainer = document.getElementById('my-ads-container');
-            
-            homeContainer.innerHTML = "";
-            myAdsContainer.innerHTML = "";
-            
-            let myAdCount = 0;
-            let homeAdCount = 0;
-
-            for(let key in data) {
-                const item = data[key];
-                if (!item) continue; 
-
-                const isExpired = item.expiresAt && (Date.now() > item.expiresAt);
-                if (isExpired) {
-                    continue; 
-                }
-
-                const displayImage = item.image || placeholderShopImg;
-                const timeRemainingStr = item.expiresAt ? getRemainingTimeText(item.expiresAt) : "لامحدود";
-
-                const adHtml = `
-                    <div class="ad-info">
-                        <img src="${displayImage}" class="ad-img" alt="Shop Photo">
-                        <div>
-                            <h4 style="color:var(--primary-color);">${item.shopName || ''}</h4>
-                            <p style="font-size:12px; color:#bbb;">نام: ${item.barberName || ''} | فون: ${item.phone || ''}</p>
-                            <div class="rating"><i class="fa-solid fa-star"></i> ${item.rating || 5}.0</div>
-                            <span class="expiry-badge"><i class="fa-regular fa-clock"></i> ${timeRemainingStr}</span>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-left" style="color:var(--primary-color); margin-right: auto;"></i>
-                `;
-
-                const divHome = document.createElement('div');
-                divHome.className = "ad-strip";
-                divHome.id = `ad-${key}`;
-                divHome.innerHTML = adHtml;
-                divHome.onclick = () => window.openBookingPage(key, item);
-                homeContainer.appendChild(divHome);
-                homeAdCount++;
-
-                if(item.barberId === currentUserId) {
-                    myAdCount++;
-                    
-                    const divMy = document.createElement('div');
-                    divMy.className = "ad-strip-container";
-                    divMy.style.cssText = "background: var(--card-bg); border-radius: 10px; padding: 12px; margin-bottom: 12px; border-left: 4px solid var(--primary-color);";
-                    
-                    const innerStrip = document.createElement('div');
-                    innerStrip.className = "ad-strip";
-                    innerStrip.style.cssText = "border-left: none; background: transparent; padding: 0; margin: 0;";
-                    innerStrip.innerHTML = adHtml;
-                    divMy.appendChild(innerStrip);
-
-                    const delBtn = document.createElement('button');
-                    delBtn.className = "btn btn-gray";
-                    delBtn.style.cssText = "background:#cc0000; font-size:12px; padding:8px; margin-top:10px; width:100%; border:none; border-radius:8px; cursor:pointer;";
-                    delBtn.innerHTML = '<i class="fa-solid fa-trash"></i> ایڈ ڈیلیٹ کریں';
-                    delBtn.onclick = function(e) {
-                        e.stopPropagation();
-                        window.deleteAd(key);
-                    };
-
-                    divMy.appendChild(delBtn);
-                    myAdsContainer.appendChild(divMy);
-                }
-            }
-
-            if (homeAdCount === 0) {
-                homeContainer.innerHTML = `<p style="text-align:center; color:#666; margin-top:20px;">کوئی اشتہار دستیاب نہیں ہے</p>`;
-            }
-            if (myAdCount === 0) {
-                myAdsContainer.innerHTML = `<p style="text-align:center; color:#666; margin-top:20px;">آپ کا کوئی اشتہار موجود نہیں ہے</p>`;
-            }
-
-            const billingIndicator = document.getElementById('billing-indicator');
-            const adCreateFormWrapper = document.getElementById('ad-create-form-wrapper');
-
-            document.getElementById('lbl-myads-head').innerText = `میرے اشتہارات (حد: ${adLimit})`;
-
-            if (myAdCount >= adLimit) {
-                document.getElementById('lbl-add-head').innerText = `اشتہار کی حد مکمل ہو چکی ہے۔ (حد: ${adLimit})`;
-                adCreateFormWrapper.style.display = "none";
-                billingIndicator.style.display = "block";
-
-                if (billingStatus === "pending") {
-                    billingIndicator.innerText = "آپ کی پیمنٹ کی تصدیق کا عمل جاری ہے۔ براہ کرم 24 گھنٹے تک انتظار کریں۔";
-                    billingIndicator.style.pointerEvents = "none";
-                } else if (billingStatus === "approved") {
-                    billingIndicator.style.display = "none";
-                    adCreateFormWrapper.style.display = "block";
-                    document.getElementById('lbl-add-head').innerText = `نیا اشتہار لگائیں (حد: 5)`;
-                } else {
-                    billingIndicator.innerHTML = `<i class="fa-solid fa-wallet"></i> اشتہار کی حد ختم! 5 اشتہارات کے لیے یہاں کلک کر کے پے کریں۔`;
-                    billingIndicator.style.pointerEvents = "auto";
-                }
-            } else {
-                adCreateFormWrapper.style.display = "block";
-                billingIndicator.style.display = "none";
-                document.getElementById('lbl-add-head').innerText = "نیا اشتہار لگائیں";
-            }
+            cachedAdsSnapshot = data;
+            renderAdsList(data);
         });
 
         onValue(ref(db, 'bookings'), (snapshot) => {
             const data = snapshot.val();
-            const container = document.getElementById('my-bookings-container');
-            container.innerHTML = "";
-
-            if (data) {
-                for(let key in data) {
-                    const b = data[key];
-                    if (!b) continue;
-
-                    if(b.customerId === currentUserId || b.barberId === currentUserId) {
-                        
-                        let cardBorderColor = "border-right: 4px solid var(--primary-color);"; 
-                        let statusLabelColor = "color: yellow;";
-                        
-                        if (b.status === "تصدیق شدہ") {
-                            cardBorderColor = "border-right: 4px solid #28a745;"; 
-                            statusLabelColor = "color: #28a745; font-weight: bold;";
-                        } else if (b.status === "منسوخ") {
-                            cardBorderColor = "border-right: 4px solid #dc3545;"; 
-                            statusLabelColor = "color: #dc3545; font-weight: bold;";
-                        }
-
-                        let servicesDetailsHtml = "";
-                        if (b.services && Array.isArray(b.services)) {
-                            servicesDetailsHtml = `<div style="font-size:11px; color:#aaa; margin:5px 0;">خدمات: ` + 
-                                b.services.map(s => `${s.name} (${s.price} PKR)`).join(', ') + `</div>`;
-                        }
-
-                        const bHtml = `
-                            <div style="background:var(--card-bg); padding:12px; border-radius:8px; margin-bottom:10px; ${cardBorderColor}">
-                                <h4>دکان: ${b.shopName}</h4>
-                                <p style="font-size:12px;">تاریخ: ${b.date} | وقت: ${b.time}</p>
-                                ${servicesDetailsHtml}
-                                <p style="color:var(--primary-color); font-weight:bold;">رقم: ${b.amount} PKR</p>
-                                <p style="font-size:12px; color:#aaa;">اسٹیٹس: <span style="${statusLabelColor}">${b.status}</span></p>
-                                <div style="margin-top:8px; display:flex; gap:5px;">
-                                    ${currentUserType === 'barber' && b.status === 'پینڈنگ' ? `<button class="btn btn-gold" style="padding:5px; font-size:11px; margin-bottom: 0;" onclick="window.updateBookingStatus('${key}','تصدیق شدہ')">کنفرم کریں</button>` : ''}
-                                    <button class="btn btn-gray" style="background:red; padding:5px; font-size:11px; margin-bottom: 0; flex: 1;" onclick="window.updateBookingStatus('${key}','منسوخ')">کینسل کریں</button>
-                                    <button class="btn btn-gray" style="background:#555; padding:5px; font-size:11px; margin-bottom: 0; flex: 1;" onclick="window.deleteBooking('${key}')"><i class="fa-solid fa-trash"></i> ڈیلیٹ کریں</button>
-                                </div>
-                            </div>
-                        `;
-                        container.innerHTML += bHtml;
-
-                        if(currentUserType === 'barber' && b.barberId === currentUserId && b.status === 'پینڈنگ' && !alarmInterval) {
-                            triggerSystemAlarm(b);
-                        }
-                    }
-                }
-            }
+            window.rawActiveBookingsSnapshot = data; 
+            renderBookingsUI(data);
         });
     }
 
@@ -1376,7 +1668,7 @@
             srvContainer.innerHTML += `
                 <div class="checkbox-container">
                     <label><input type="checkbox" class="srv-chk" value="${item.services[sName]}" onchange="window.calculateBookingTotal()"> ${sName}</label>
-                    <span>${item.services[sName]} PKR</span>
+                    <span>${window.convertPrice(item.services[sName])}</span>
                 </div>
             `;
         }
@@ -1390,15 +1682,21 @@
         document.querySelectorAll('.srv-chk:checked').forEach(chk => {
             total += Number(chk.value);
         });
-        document.getElementById('total-booking-amount').innerText = total;
+        document.getElementById('total-booking-amount').innerText = window.convertPrice(total);
     };
 
     window.submitOrder = function() {
         const date = document.getElementById('book-date').value;
         const time = document.getElementById('book-time').value;
-        const amt = document.getElementById('total-booking-amount').innerText;
+        const amtStr = document.getElementById('total-booking-amount').innerText;
 
-        if(!date || !time || amt === "0") return alert("برائے مہربانی تاریخ، وقت اور سروسز منتخب کریں۔");
+        // Extract native PKR numeric amount for consistent storage in the database
+        let numericTotalPKR = 0;
+        document.querySelectorAll('.srv-chk:checked').forEach(chk => {
+            numericTotalPKR += Number(chk.value);
+        });
+
+        if(!date || !time || numericTotalPKR === 0) return alert("برائے مہربانی تاریخ، وقت اور سروسز منتخب کریں۔");
 
         const selectedServices = [];
         document.querySelectorAll('.srv-chk:checked').forEach(chk => {
@@ -1406,14 +1704,18 @@
             selectedServices.push({ name: labelText, price: Number(chk.value) });
         });
 
+        // Store complete Barber Ad state values into booking node for persistent view records
         const bookingRef = ref(db, 'bookings');
         push(bookingRef, {
             barberId: selectedAdForBooking.barberId,
             customerId: currentUserId,
             shopName: selectedAdForBooking.shopName,
+            barberPhone: selectedAdForBooking.phone || '',
+            shopImage: selectedAdForBooking.image || placeholderShopImg,
+            location: selectedAdForBooking.location || '31.5204, 74.3587',
             date: date,
             time: time,
-            amount: amt,
+            amount: numericTotalPKR, // consistent PKR base amount storage
             services: selectedServices, 
             status: "پینڈنگ",
             createdAt: Date.now()
@@ -1431,7 +1733,7 @@
 
     function triggerSystemAlarm(bookingItem) {
         document.getElementById('alarmTitle').innerText = `نئی بکنگ: ${bookingItem.shopName}`;
-        document.getElementById('alarmBody').innerText = `رقم: ${bookingItem.amount} PKR - کسٹمر ویٹنگ میں ہے!`;
+        document.getElementById('alarmBody').innerText = `رقم: ${window.convertPrice(bookingItem.amount)} - کسٹمر ویٹنگ میں ہے!`;
         document.getElementById('alarmScreen').style.display = 'flex';
         
         try {
@@ -1481,4 +1783,3 @@
 
 </body>
 </html>
-
